@@ -9,4 +9,6 @@ services:
       - ./work:/work
     ports:
       - "8888:8888"
+    environment:
+      - JUPYTER_TOKEN=${JUPYTER_TOKEN}
     command: jupyter-lab --ip 0.0.0.0 --allow-root --ServerApp.token=${JUPYTER_TOKEN}
