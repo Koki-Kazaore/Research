@@ -1,0 +1,14 @@
+version: "3.8"
+services:
+  jupyterlab:
+    build: .
+    image: jupyterlab-test-img
+    container_name: jupyterlab-test
+    working_dir: /work
+    volumes:
+      - ./work:/work
+    ports:
+      - "8888:8888"
+    environment:
+      - JUPYTER_TOKEN=${JUPYTER_TOKEN}
+    command: jupyter-lab --ip 0.0.0.0 --allow-root --ServerApp.token=${JUPYTER_TOKEN}
