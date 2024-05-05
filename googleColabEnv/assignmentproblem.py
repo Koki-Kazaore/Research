@@ -300,6 +300,148 @@ for index, row in df_users.iterrows():
                 marker='*', color='red', s=200, zorder=1,
                 label="Current Location (User)" if index == 0 else "")
 
+
+"""ランダムに生成した100ユーザーでシミュレートしてみる"""
+
+# 100人分のランダムな現在位置と目的地を生成
+current_positions = [(np.random.randint(0, 100), np.random.randint(0, 100)) for _ in range(100)]
+destinations = [(np.random.randint(0, 100), np.random.randint(0, 100)) for _ in range(100)]
+
+# ユーザーデータの辞書を作成
+user_data = {
+    'User': [f'User {i + 1}' for i in range(100)],
+    'Current Position': current_positions,
+    'Destination': destinations,
+    'Assigned Bike ID': [-1] * 100  # すべてのユーザーに対して初期値 -1 を設定
+}
+
+# データフレームの作成
+df_users = pd.DataFrame(user_data)
+
+# 'User ID' 列を最初のカラムとして追加し、インデックスとして設定
+df_users.insert(0, 'User ID', df_users.index)
+df_users.set_index('User ID', inplace=True)
+
+# 結果の表示
+df_users
+
+"""ユーザー100人に対して最適化を実行する
+
+【TO DO】この処理は複数箇所で出現しているため、共通化したい。
+"""
+
+import pulp
+
+# ユーザーごとに最適化を行う
+for user_index, user_row in df_users.iterrows():
+    user_position = np.array(user_row['Current Position'])
+    destination = np.array(user_row['Destination'])
+
+    # 制約(1): 半径rの距離内の自転車を特定
+    radius = 16
+
+    # 制約(2): radius内に利用可能な自転車が1つ以下の場合は半径を広げて探索(最大2回の拡張とする)
+    loopIndex = 0
+    MAX_SEARCH = 2
+    available_bikes = []
+    while len(available_bikes) < 2:
+        for index, row in df_bikes.iterrows():
+            distance = np.linalg.norm(np.array(row['Current Location']) - user_position)
+            if distance <= radius:
+                available_bikes.append(index)
+
+        loopIndex += 1
+        if loopIndex > MAX_SEARCH or len(available_bikes) >= 2:
+            break;
+
+        # 利用可能な自転車が無い場合、探索範囲を拡張
+        radius += 2
+
+    # モデルの定義
+    # スペースをアンダースコアに変換
+    user_name = user_row['User'].replace(' ', '_')
+    model = pulp.LpProblem("Bike_Allocation_for_{}".format(user_name), pulp.LpMinimize)
+
+    # 変数の定義
+    bike_vars = pulp.LpVariable.dicts("Bike", available_bikes, cat="Binary")
+
+    # 目的関数の定義: 移動後の自転車の目的地とホームポジションの距離(分散)を最小化
+    model += pulp.lpSum([np.linalg.norm(np.array(df_bikes.loc[bike, 'Home Position']) - destination) * bike_vars[bike] for bike in available_bikes])
+
+    # 制約条件の定義: 選択された自転車は1つと仮定
+    # 【TO DO】実際は「1つ以下」という条件であるべきだが，そうするとマッチングしなくなってしまう。
+    model += pulp.lpSum([bike_vars[bike] for bike in available_bikes]) == 1
+
+    # 最適化の実行
+    model.solve()
+
+    # 結果の表示
+    print("Optimization result for", user_row['User'])
+    is_successed_optimization = False
+    for bike in available_bikes:
+        if pulp.value(bike_vars[bike]) == 1:
+            # 更新処理
+            df_bikes = update_bike_location(df_bikes, bike, destination)
+            df_users = update_user(df_users, user_index, bike, destination)
+            is_successed_optimization = True
+
+            print("Assigned bike:", bike, "at location", df_bikes.loc[bike, 'Current Location'])
+            print()
+            break
+
+    if not is_successed_optimization:
+      print("適切な自転車が見つかりませんでした。")
+
+# 結果の表示
+df_users
+
+"""キューとして保持していたユーザーのデータフレームにおいて、マッチングが成立したデータを削除する。
+
+【TO DO】キュー配列の更新関数を作成する必要がある。
+"""
+
+# 'Assigned Bike ID'が-1ではない行を削除
+df_users = df_users[df_users['Assigned Bike ID'] == -1]
+
+# 結果の表示
+df_users
+
+"""ユーザー数100人でシミュレートした結果をプロット
+
+【TO DO】プロットする部分を共通化する必要がある。何をプロットするのか否かを引数として受け取って図を出力したい。
+"""
+
+import matplotlib.pyplot as plt
+
+# プロットを作成
+plt.figure(figsize=(8, 8))
+
+# 自転車と自宅位置のプロット
+for index, row in df_bikes.iterrows():
+    # 現在地をプロット
+    plt.scatter(row['Current Location'][0], row['Current Location'][1],
+                marker='o', color='blue', zorder=2,
+                label="Current Location (Bike)" if index == 0 else "")
+    # 自宅位置をプロット
+    plt.scatter(row['Home Position'][0], row['Home Position'][1],
+                marker='s', color='green', s=100, zorder=1,
+                label="Home Position (Bike)" if index == 0 else "")
+    # 矢印をプロット
+    # 見やすさの観点から矢印の長さを短くしてプロット
+    plt.arrow(row['Current Location'][0], row['Current Location'][1],
+              row['Home Position'][0] - row['Current Location'][0],
+              row['Home Position'][1] - row['Current Location'][1],
+              head_width=3, head_length=3, fc='black', ec='black',
+              length_includes_head=True, zorder=3,
+              label="Direction to Home (Bike)" if index == 0 else "")
+
+# ユーザーの位置と目的地のプロット
+# for index, row in df_users.iterrows():
+#     # 現在地をプロット
+#     plt.scatter(row['Current Position'][0], row['Current Position'][1],
+#                 marker='*', color='red', s=200, zorder=1,
+#                 label="Current Location (User)" if index == 0 else "")
+
 # y軸をLatitudeに設定
 plt.xlabel('Latitude')
 # x軸をLongitudeに設定
