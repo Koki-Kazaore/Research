@@ -56,6 +56,15 @@ user_data = {
 }
 
 df_users = pd.DataFrame(user_data)
+
+# 'Assigned Bike ID' 列を追加し、初期値を -1 に設定
+df_users['Assigned Bike ID'] = -1
+
+# 'User ID' 列を最初のカラムとして追加
+df_users.insert(0, 'User ID', df_users.index)
+# User ID をインデックスとして設定
+df_users.set_index('User ID', inplace=True)
+
 df_users
 
 """以下の二種類の情報をプロットする
