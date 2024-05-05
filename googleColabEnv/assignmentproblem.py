@@ -300,6 +300,24 @@ for index, row in df_users.iterrows():
                 marker='*', color='red', s=200, zorder=1,
                 label="Current Location (User)" if index == 0 else "")
 
+# y軸をLatitudeに設定
+plt.xlabel('Latitude')
+# x軸をLongitudeに設定
+plt.ylabel('Longitude')
+plt.title('Bike Positions and Home Locations')
+plt.grid(True)
+plt.legend()
+plt.show()
+
+"""キューとして保持していたユーザーのデータフレームにおいて、マッチングが成立したデータを削除する。"""
+
+# 'Assigned Bike ID'が-1ではない行を削除
+df_users = df_users[df_users['Assigned Bike ID'] == -1]
+
+# 結果の表示
+df_users
+
+print("移動後の自転車のノルムの総和:", calculate_total_distance(df_bikes))
 
 """ランダムに生成した100ユーザーでシミュレートしてみる"""
 
