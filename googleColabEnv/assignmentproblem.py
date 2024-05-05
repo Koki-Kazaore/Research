@@ -175,12 +175,13 @@ def update_bike_location(df_bikes, bike_index, new_destination):
         print("Error: new_destination is not in the correct format or size.")
 
 
-def update_user_location(df_users, user_index, new_destination):
+def update_user(df_users, user_index, assigned_bike_id, new_destination):
     """
     ユーザーの現在位置を更新する関数。新しい位置はnumpy配列で指定。
 
     :param df_users: ユーザー情報を含むデータフレーム
     :param user_index: 更新するユーザーのインデックス
+    :param assigned_bike_id: ユーザーに割り当てられる自転車のID
     :param new_destination: 新しい目的地（numpy配列形式の座標、例：np.array([x, y])）
     """
     # ユーザーインデックスのバリデーション
@@ -197,7 +198,11 @@ def update_user_location(df_users, user_index, new_destination):
 
 
     # 指定されたユーザーの現在位置を新しい目的地に更新
-    df_users.loc[user_index, 'Current Position'] = tuple(new_destination)
+    df_users.at[user_index, 'Current Position'] = tuple(new_destination)
+    # ユーザーに割り当てられた自転車IDを更新
+    df_users.at[user_index, 'Assigned Bike ID'] = assigned_bike_id
+    # 【WANT TO DO】この情報を履歴DBに格納する方にしたい。
+
     return df_users
 
 import pulp
