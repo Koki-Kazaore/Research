@@ -155,9 +155,25 @@ def update_bike_location(df_bikes, bike_index, new_destination):
     :param bike_index: 更新する自転車のインデックス
     :param new_destination: 新しい目的地（numpy配列形式の座標、例：np.array([x, y])）
     """
-    # 指定された自転車の現在位置を新しい目的地に更新
-    df_bikes.loc[bike_index, 'Current Location'] = tuple(new_destination)
-    return df_bikes
+
+    # バリデーション
+    # 実際に更新を試みる前に、インデックスとデータ型を確認
+    if isinstance(new_destination, (list, np.ndarray)) and len(new_destination) == 2:
+        try:
+            # インデックスが有効か確認
+            if bike_index in df_bikes.index:
+                # 指定された自転車の現在位置を新しい目的地に更新
+                # df_bikes.loc[bike_index, 'Current Location'] = tuple(new_destination)
+                df_bikes.at[bike_index, 'Current Location'] = tuple(new_destination)
+                # print("Update successful!")
+                return df_bikes
+            else:
+                print("Error: bike_index is out of bounds.")
+        except Exception as e:
+            print("An error occurred:", e)
+    else:
+        print("Error: new_destination is not in the correct format or size.")
+
 
 def update_user_location(df_users, user_index, new_destination):
     """
