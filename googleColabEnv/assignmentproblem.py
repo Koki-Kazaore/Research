@@ -244,6 +244,7 @@ for user_index, user_row in df_users.iterrows():
     model += pulp.lpSum([np.linalg.norm(np.array(df_bikes.loc[bike, 'Home Position']) - destination) * bike_vars[bike] for bike in available_bikes])
 
     # 制約条件の定義: 選択された自転車は1つと仮定
+    # 【TO DO】実際は「1つ以下」という条件であるべきだが，そうするとマッチングしなくなってしまう。
     model += pulp.lpSum([bike_vars[bike] for bike in available_bikes]) == 1
 
     # 最適化の実行
@@ -256,7 +257,7 @@ for user_index, user_row in df_users.iterrows():
         if pulp.value(bike_vars[bike]) == 1:
             # 更新処理
             df_bikes = update_bike_location(df_bikes, bike, destination)
-            df_users = update_user_location(df_users, user_index, destination)
+            df_users = update_user(df_users, user_index, bike, destination)
             is_successed_optimization = True
 
             print("Assigned bike:", bike, "at location", df_bikes.loc[bike, 'Current Location'])
@@ -267,7 +268,8 @@ for user_index, user_row in df_users.iterrows():
       print("適切な自転車が見つかりませんでした。")
 
 df_bikes
-# df_users
+
+df_users
 
 import matplotlib.pyplot as plt
 
