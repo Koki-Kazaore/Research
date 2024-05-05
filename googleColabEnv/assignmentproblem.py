@@ -40,6 +40,11 @@ same_locations =[(np.random.randint(min_coord, max_coord), np.random.randint(min
 new_row = pd.DataFrame({'Home Position': same_locations, 'Current Location': same_locations})
 df_bikes = pd.concat([df_bikes, new_row], ignore_index=True)
 
+# 'Bike ID' 列を最初のカラムとして追加
+df_bikes.insert(0, 'Bike ID', df_bikes.index)
+# Bike ID をインデックスとして設定
+df_bikes.set_index('Bike ID', inplace=True)
+
 df_bikes
 
 """ユーザー情報を別のデータフレームとして保持"""
