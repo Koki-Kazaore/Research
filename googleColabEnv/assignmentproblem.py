@@ -183,6 +183,19 @@ def update_user_location(df_users, user_index, new_destination):
     :param user_index: 更新するユーザーのインデックス
     :param new_destination: 新しい目的地（numpy配列形式の座標、例：np.array([x, y])）
     """
+    # ユーザーインデックスのバリデーション
+    if user_index not in df_users.index:
+        raise ValueError("指定されたuser_indexはデータフレームの範囲外です。")
+
+    # new_destinationのバリデーション
+    if not isinstance(new_destination, np.ndarray) or new_destination.shape != (2,):
+        raise ValueError("new_destinationは2要素のnumpy配列である必要があります。")
+
+    # assigned_bike_idのバリデーション
+    if not isinstance(assigned_bike_id, int):
+        raise ValueError("assigned_bike_idは整数である必要があります。")
+
+
     # 指定されたユーザーの現在位置を新しい目的地に更新
     df_users.loc[user_index, 'Current Position'] = tuple(new_destination)
     return df_users
