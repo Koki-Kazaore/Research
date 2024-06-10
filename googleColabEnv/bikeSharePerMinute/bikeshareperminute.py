@@ -279,6 +279,14 @@ for b in range(B.shape[0]):
 for j in range(J.shape[0]):
     solver.Add(solver.Sum(x[b][j] for b in range(B.shape[0])) <= 1)
 
+# 徒歩30分で移動できる距離
+R = 2500
+# 半径r内に存在する自転車しかユーザーに割り当てない制約
+for b in range(B.shape[0]):
+    for j in range(J.shape[0]):
+        if initial_distances[b][j] > R:
+            solver.Add(x[b][j] == 0)
+
 # ソルバーを実行
 status = solver.Solve()
 print(status)
