@@ -177,6 +177,9 @@ def generate_before_trip_distances(
 distances = generate_after_trip_distances(B, J)
 print(distances)
 
+initial_distances = generate_before_trip_distances(B, J)
+print(initial_distances)
+
 '''ユーザーの位置と自転車の位置をプロットする関数'''
 def plot_users_and_bikes(
     user_locations: np.ndarray,
