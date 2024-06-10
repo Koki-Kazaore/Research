@@ -147,6 +147,31 @@ def generate_after_trip_distances(
 
     return after_trip_distances
 
+
+'''ユーザーリクエストJに対して移動前の自転車Bの位置関係を表す距離行列を返す関数'''
+def generate_before_trip_distances(
+    df_bikes: pd.DataFrame,
+    df_requests: pd.DataFrame,
+) -> np.ndarray:
+
+    # 自転車とリクエストの数
+    num_bikes = len(df_bikes)
+    num_requests = len(df_requests)
+
+    # 移動前の距離行列 d を作成 (d[b, j] が利用者 j のリクエスト地点と自転車 b の現在地との距離)
+    # 距離行列を初期化
+    before_trip_distances = np.zeros((num_bikes, num_requests))
+    for b in range(num_bikes):
+        current_location = df_bikes.loc[b, 'Current Location']
+        for j in range(num_requests):
+            request_pickup_id = df_requests.loc[j, 'PULocationID']
+            request_pickup = get_coordinates_by_location_id(request_pickup_id)
+            before_trip_distances[b, j] = geodesic(
+                current_location, request_pickup
+            ).m  # 単位はメートル
+
+    return before_trip_distances
+
 # デバッグ
 # ユーザーリクエストJに対して移動された自転車Bにおける、自転車の定位置との距離行列
 distances = generate_after_trip_distances(B, J)
