@@ -29,12 +29,16 @@ Original file is located at
 """
 
 # ライブラリのインストール
-!pip install pulp
+!pip install ortools
 
-import pulp
-import pandas as pd
-import numpy as np
+import branca.colormap as cm
+import folium
 import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+from geopy.distance import geodesic
+from ortools.linear_solver import pywraplp
+from pandas import DataFrame
 
 # データの準備
 
@@ -106,8 +110,8 @@ df_requests['tpep_pickup_datetime'] = pd.to_datetime(df_requests['tpep_pickup_da
 df_requests['tpep_dropoff_datetime'] = pd.to_datetime(df_requests['tpep_dropoff_datetime'])
 
 # 一か月分のデータを一分ごとに分割
-start_time = df_requests['tpep_pickup_datetime'].min()
-end_time = df_requests['tpep_pickup_datetime'].max()
+# start_time = df_requests['tpep_pickup_datetime'].min()
+# end_time = df_requests['tpep_pickup_datetime'].max()
 
 # 最初の1分のデータを抽出
 start_time = df_requests['tpep_pickup_datetime'].min()
@@ -119,11 +123,7 @@ J = df_requests[(df_requests['tpep_pickup_datetime'] >= start_time) & (df_reques
 # type(J)
 J
 
-import numpy as np
-from pandas import DataFrame
-from geopy.distance import geodesic
-
-
+'''ユーザーリクエストJに対して移動後の自転車Bの位置関係を表す距離行列を返す関数'''
 def generate_after_trip_distances(
     df_bikes: DataFrame,
     df_requests: DataFrame,
@@ -148,147 +148,179 @@ def generate_after_trip_distances(
     return after_trip_distances
 
 # デバッグ
-result = generate_after_trip_distances(B, J)
-print(result)
+# ユーザーリクエストJに対して移動された自転車Bにおける、自転車の定位置との距離行列
+distances = generate_after_trip_distances(B, J)
+print(distances)
 
-"""
-
----
-
-"""
-
-num_people = 30
-num_cars = 10
-car_capacity = 6
-
-import numpy as np
-from geopy.distance import geodesic
-
-
-def generate_problem(
-    num_people: int,
-    num_cars: int,
-    latitude_range: tuple[float, float],
-    longitude_range: tuple[float, float],
-    seed=999,
-) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
-    rng = np.random.default_rng(seed)
-
-    # 利用者と車の座標を生成
-    people_coords = rng.uniform(
-        low=np.array([latitude_range[0], longitude_range[0]]),
-        high=np.array([latitude_range[1], longitude_range[1]]),
-        size=(num_people, 2),
-    )
-    car_coords = rng.uniform(
-        low=np.array([latitude_range[0], longitude_range[0]]),
-        high=np.array([latitude_range[1], longitude_range[1]]),
-        size=(num_cars, 2),
-    )
-
-    # 距離行列 d を作成 (d[i, k] が利用者 i と車 k の距離)
-    distances = np.zeros((num_people, num_cars))
-    for i in range(num_people):
-        for k in range(num_cars):
-            distances[i, k] = geodesic(
-                people_coords[i], car_coords[k]
-            ).m  # 単位はメートル
-
-    return people_coords, car_coords, distances
-
-# 船橋駅周辺
-latitude_range = (35.675500, 35.76)
-longitude_range = (139.9, 140.08)
-
-people_coords, car_coords, distances = generate_problem(
-    num_people, num_cars, latitude_range, longitude_range
-)
-
-print(people_coords)
-
-import folium
-
-
-def plot_people_and_cars(
-    people_coords: np.ndarray,
-    car_coords: np.ndarray,
+'''ユーザーの位置と自転車の位置をプロットする関数'''
+def plot_users_and_bikes(
+    user_locations: np.ndarray,
+    bike_locations: np.ndarray,
     latitude_range: tuple[float, float],  # 描画範囲 (緯度)
     longitude_range: tuple[float, float],  # 描画範囲 (経度)
 ):
     m = folium.Map(
         [sum(latitude_range) / 2, sum(longitude_range) / 2],
         tiles="OpenStreetMap",
-        zoom_start=12,
+        zoom_start=11,
     )
 
-    for latitude, longitude in people_coords:
+    for latitude, longitude in user_locations:
         folium.Marker(
             location=(latitude, longitude),
             icon=folium.Icon(icon="user", prefix="fa", color="orange"),
         ).add_to(m)
 
-    for latitude, longitude in car_coords:
+    for latitude, longitude in bike_locations:
         folium.Marker(
             location=(latitude, longitude),
-            icon=folium.Icon(icon="car", prefix="fa", color="green"),
+            icon=folium.Icon(icon="bicycle", prefix="fa", color="green"),
         ).add_to(m)
 
     return m
 
-plot_people_and_cars(people_coords, car_coords, latitude_range, longitude_range)
+# latitudeカラムとlongitudeカラムの最大値と最小値を取得
+latitude_max = df_locations['Latitude'].max()
+latitude_min = df_locations['Latitude'].min()
+longitude_max = df_locations['Longitude'].max()
+longitude_min = df_locations['Longitude'].min()
 
-import numpy as np
+# 結果を表示
+print(f"Latitude: max = {latitude_max}, min = {latitude_min}")
+print(f"Longitude: max = {longitude_max}, min = {longitude_min}")
 
+# NYC
+latitude_range = (latitude_min - 0.1, latitude_max + 0.1)
+longitude_range = (longitude_min - 0.1, longitude_max + 0.1)
+print(latitude_range)
+print(longitude_range)
+
+# 自転車の現在地の配列
+current_locations = B['Current Location'].values
+print(type(current_locations))
+print(current_locations)
+
+# ユーザーの現在地の配列
+request_origin_ids = J['PULocationID']
+request_origins = []
+for origin_id in request_origin_ids:
+    request_origins.append(get_coordinates_by_location_id(origin_id))
+request_origins = np.array(request_origins)
+print(type(request_origins))
+print(request_origins)
+
+plot_users_and_bikes(request_origins, current_locations, latitude_range, longitude_range)
+
+# 問題の正規化
 average = distances.mean()
-print(average)
+print(f"average: {average}")
 std = distances.std()
-print(std)
+print(f"std: {std}")
 distances: np.ndarray = (distances - average) / std
-print(np.array(distances))
+print(f"distances: {distances}")
 
-!pip install amplify
+# OR-Toolsのソルバーを作成
+solver = pywraplp.Solver.CreateSolver('SCIP')
 
-from amplify import VariableGenerator
-
-gen = VariableGenerator()
-q = gen.array("Binary", num_people, num_cars)
-
-from amplify import sum
+# 変数の定義
+x = []
+for b in range(B.shape[0]):
+    x.append([])
+    for j in range(J.shape[0]):
+        x[b].append(solver.BoolVar(f'x[{b},{j}]'))
+print(x)
 
 alpha = 1.0
 
-# 第一項: 利用者の移動距離を短くする
-distance_objective = (distances * q).sum()
+# 目的関数の定義
+# 第一項: ユーザーの移動後の自転車の現在地と定位置との距離を短くする
+distance_objective = solver.Sum(distances[b][j] * x[b][j] for b in range(B.shape[0]) for j in range(J.shape[0]))
+# 第二項: より多くのユーザーに自転車を割り当てる
+sum_x = solver.Sum(x[b][j] for b in range(B.shape[0]) for j in range(J.shape[0]))
 
-# 第二項: 乗車率の二乗和を大きくする
-occupancies = q.sum(axis=0) / car_capacity  # 乗車率
-occupancy_objective = (occupancies**2).sum()
+objective = distance_objective - alpha * sum_x
+solver.Minimize(objective)
 
-objective = distance_objective - alpha * occupancy_objective
+# 制約条件の定義
 
-from amplify import one_hot
+# 各ユーザーは1台の自転車にしか割り当てられない
+for b in range(B.shape[0]):
+    solver.Add(solver.Sum(x[b][j] for j in range(J.shape[0])) <= 1)
 
-one_person_one_car_constraints = one_hot(q, axis=1)
+# 各自転車は１人のユーザーにしか割り当てられない
+for j in range(J.shape[0]):
+    solver.Add(solver.Sum(x[b][j] for b in range(B.shape[0])) <= 1)
 
-from amplify import less_equal
+# ソルバーを実行
+status = solver.Solve()
+print(status)
 
-car_capacity_constraints = less_equal(q, car_capacity, axis=0)
-
-one_person_one_car_constraints *= np.max(distances) + alpha * 1
-car_capacity_constraints *= np.max(distances) + alpha * 2 / car_capacity
-
-from amplify import Model
-
-model = objective + one_person_one_car_constraints + car_capacity_constraints
-
-from amplify import FixstarsClient, solve
-from datetime import timedelta
-
-client = FixstarsClient()
-client.parameters.timeout = timedelta(milliseconds=2000)  # タイムアウトは 2000 ms
-# client.token = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"  # ローカル環境等で使用する場合は、Fixstars Amplify AE のアクセストークンを入力してください。
-
-result = solve(model, client)
-if len(result) == 0:
-    # 実行可能解が見つかっていなければ例外を投げる
+if status == pywraplp.Solver.OPTIMAL:
+    print('解が見つかりました:')
+    bike_assignment = []
+    for b in range(B.shape[0]):
+        for j in range(J.shape[0]):
+            if x[b][j].solution_value() == 1:
+                bike_assignment.append((b, j))
+                print(f"利用者 {j}: 自転車 {b}")
+else:
     raise RuntimeError("No feasible solution was found.")
+
+print(bike_assignment)
+
+# debug
+# for i in range(10):
+#   for j in range(12):
+#     print(x[i][j].solution_value())
+
+'''自転車とユーザーを，割り当てられた自転車ごとに異なる色で塗り分けてプロットする関数'''
+def plot_result(
+    bike_assignment: list[tuple[int, int]],
+    user_locations: np.ndarray,
+    bike_locations: np.ndarray,
+    latitude_range: tuple[float, float],  # 描画範囲 (緯度)
+    longitude_range: tuple[float, float],  # 描画範囲 (経度)
+):
+    # マップを用意
+    m = folium.Map(
+        [sum(latitude_range) / 2, sum(longitude_range) / 2],
+        tiles="OpenStreetMap",
+        zoom_start=11,
+    )
+
+    # 色の用意
+    colormap = cm.linear.Set1_09.scale(0, len(bike_locations)).to_step(len(bike_locations))  # type: ignore
+
+    # 車のプロット (k 番目の自転車を色 k で塗る)
+    for bike_index, (latitude, longitude) in enumerate(bike_locations):
+        folium.Marker(
+            location=(latitude, longitude),
+            popup=f"bike {bike_index}",
+            icon=folium.Icon(
+                icon="bicycle", prefix="fa", color="white", icon_color=colormap(bike_index)
+            ),
+        ).add_to(m)
+
+    # 利用者のプロット (自転車 k に乗るユーザーを色 k で塗る)
+    for bike_index, user_index in bike_assignment:
+        latitude, longitude = user_locations[user_index]
+        folium.Marker(
+            location=(latitude, longitude),
+            popup=f"bike {bike_index}",
+            icon=folium.Icon(
+                icon="user",
+                prefix="fa",
+                color="white",
+                icon_color=colormap(bike_index),
+            ),
+        ).add_to(m)
+
+    return m
+
+plot_result(bike_assignment, request_origins, current_locations, latitude_range, longitude_range)
+
+"""
+
+---
+
+"""
