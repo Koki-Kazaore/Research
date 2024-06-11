@@ -147,10 +147,38 @@ def generate_after_trip_distances(
 
     return after_trip_distances
 
+
+'''ユーザーリクエストJに対して移動前の自転車Bの位置関係を表す距離行列を返す関数'''
+def generate_before_trip_distances(
+    df_bikes: pd.DataFrame,
+    df_requests: pd.DataFrame,
+) -> np.ndarray:
+
+    # 自転車とリクエストの数
+    num_bikes = len(df_bikes)
+    num_requests = len(df_requests)
+
+    # 移動前の距離行列 d を作成 (d[b, j] が利用者 j のリクエスト地点と自転車 b の現在地との距離)
+    # 距離行列を初期化
+    before_trip_distances = np.zeros((num_bikes, num_requests))
+    for b in range(num_bikes):
+        current_location = df_bikes.loc[b, 'Current Location']
+        for j in range(num_requests):
+            request_pickup_id = df_requests.loc[j, 'PULocationID']
+            request_pickup = get_coordinates_by_location_id(request_pickup_id)
+            before_trip_distances[b, j] = geodesic(
+                current_location, request_pickup
+            ).m  # 単位はメートル
+
+    return before_trip_distances
+
 # デバッグ
 # ユーザーリクエストJに対して移動された自転車Bにおける、自転車の定位置との距離行列
 distances = generate_after_trip_distances(B, J)
 print(distances)
+
+initial_distances = generate_before_trip_distances(B, J)
+print(initial_distances)
 
 '''ユーザーの位置と自転車の位置をプロットする関数'''
 def plot_users_and_bikes(
@@ -250,6 +278,14 @@ for b in range(B.shape[0]):
 # 各自転車は１人のユーザーにしか割り当てられない
 for j in range(J.shape[0]):
     solver.Add(solver.Sum(x[b][j] for b in range(B.shape[0])) <= 1)
+
+# 徒歩30分で移動できる距離
+R = 2500
+# 半径r内に存在する自転車しかユーザーに割り当てない制約
+for b in range(B.shape[0]):
+    for j in range(J.shape[0]):
+        if initial_distances[b][j] > R:
+            solver.Add(x[b][j] == 0)
 
 # ソルバーを実行
 status = solver.Solve()
