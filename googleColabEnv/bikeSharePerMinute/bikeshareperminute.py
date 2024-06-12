@@ -271,6 +271,19 @@ longitude_min = df_locations['Longitude'].min()
 print(f"Latitude: max = {latitude_max}, min = {latitude_min}")
 print(f"Longitude: max = {longitude_max}, min = {longitude_min}")
 
+"""### 以下処理は再帰的に実行する"""
+
+# デバッグ
+# ユーザーリクエストJに対して移動された自転車Bにおける、自転車の定位置との距離行列
+distances = generate_after_trip_distances(B, J)
+print(distances)
+
+initial_distances = generate_before_trip_distances(B, J)
+print(initial_distances)
+
+available_bikes = get_available_bikes(B)
+print(available_bikes)
+
 # NYC
 latitude_range = (latitude_min - 0.1, latitude_max + 0.1)
 longitude_range = (longitude_min - 0.1, longitude_max + 0.1)
