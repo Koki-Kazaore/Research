@@ -72,6 +72,9 @@ random_sample['Current Location'] = random_sample['Home Position']
 B = random_sample[['Bike ID', 'Home Position', 'Current Location']]
 B.set_index("Bike ID", inplace=True)
 
+# DODatetimeカラムを追加して初期値をNaTに設定
+B['DODatetime'] = pd.NaT
+
 # データの中身を確認
 B
 
