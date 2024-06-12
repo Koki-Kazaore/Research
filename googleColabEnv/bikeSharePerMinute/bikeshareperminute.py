@@ -217,6 +217,50 @@ def plot_users_and_bikes(
 
     return m
 
+'''自転車とユーザーを，割り当てられた自転車ごとに異なる色で塗り分けてプロットする関数'''
+def plot_result(
+    bike_assignment: list[tuple[int, int]],
+    user_locations: np.ndarray,
+    bike_locations: np.ndarray,
+    latitude_range: tuple[float, float],  # 描画範囲 (緯度)
+    longitude_range: tuple[float, float],  # 描画範囲 (経度)
+):
+    # マップを用意
+    m = folium.Map(
+        [sum(latitude_range) / 2, sum(longitude_range) / 2],
+        tiles="OpenStreetMap",
+        zoom_start=11,
+    )
+
+    # 色の用意
+    colormap = cm.linear.Set1_09.scale(0, len(bike_locations)).to_step(len(bike_locations))  # type: ignore
+
+    # 車のプロット (k 番目の自転車を色 k で塗る)
+    for bike_index, (latitude, longitude) in enumerate(bike_locations):
+        folium.Marker(
+            location=(latitude, longitude),
+            popup=f"bike {bike_index}",
+            icon=folium.Icon(
+                icon="bicycle", prefix="fa", color="white", icon_color=colormap(bike_index)
+            ),
+        ).add_to(m)
+
+    # 利用者のプロット (自転車 k に乗るユーザーを色 k で塗る)
+    for bike_index, user_index in bike_assignment:
+        latitude, longitude = user_locations[user_index]
+        folium.Marker(
+            location=(latitude, longitude),
+            popup=f"bike {bike_index}",
+            icon=folium.Icon(
+                icon="user",
+                prefix="fa",
+                color="white",
+                icon_color=colormap(bike_index),
+            ),
+        ).add_to(m)
+
+    return m
+
 # latitudeカラムとlongitudeカラムの最大値と最小値を取得
 latitude_max = df_locations['Latitude'].max()
 latitude_min = df_locations['Latitude'].min()
