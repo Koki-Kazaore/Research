@@ -175,13 +175,20 @@ def generate_before_trip_distances(
 
     return before_trip_distances
 
-# デバッグ
-# ユーザーリクエストJに対して移動された自転車Bにおける、自転車の定位置との距離行列
-distances = generate_after_trip_distances(B, J)
-print(distances)
 
-initial_distances = generate_before_trip_distances(B, J)
-print(initial_distances)
+'''利用可能な自転車の集合を返す関数'''
+def get_available_bikes(
+    df_bikes: pd.DataFrame
+) -> np.ndarray:
+    # 現在時刻を取得
+    # current_time = datetime.now()
+    # テストデータとしてcurrent_timeを自作する
+    current_time = datetime(2023, 1, 1, 0, 0, 2)
+
+    # 利用可能な自転車を1、不可能な自転車を0とする行列を作成
+    available_bikes = (B['DODatetime'].isna() | (B['DODatetime'] < current_time)).astype(int)
+
+    return available_bikes.values
 
 '''ユーザーの位置と自転車の位置をプロットする関数'''
 def plot_users_and_bikes(
