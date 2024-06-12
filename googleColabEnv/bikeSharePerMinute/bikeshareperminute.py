@@ -372,6 +372,8 @@ if status == pywraplp.Solver.OPTIMAL:
             if x[b][j].solution_value() == 1:
                 bike_assignment.append((b, j))
                 print(f"利用者 {j}: 自転車 {b}")
+                # jのtpep_dropoff_datetimeを取得するし自転車ステータス更新する
+                B.loc[b, 'DODatetime'] = J.loc[j, 'tpep_dropoff_datetime']
 else:
     raise RuntimeError("No feasible solution was found.")
 
