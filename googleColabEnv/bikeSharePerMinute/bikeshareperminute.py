@@ -354,6 +354,12 @@ for b in range(B.shape[0]):
         if initial_distances[b][j] > R:
             solver.Add(x[b][j] == 0)
 
+# 他ユーザーに割り当てられていない利用可能な自転車のみを割り当てる
+for b in range(available_bikes.shape[0]):
+    if available_bikes[b] == 0:
+        for j in range(J.shape[0]):
+            solver.Add(x[b][j] == 0)
+
 # ソルバーを実行
 status = solver.Solve()
 print(status)
