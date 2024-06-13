@@ -373,14 +373,21 @@ if status == pywraplp.Solver.OPTIMAL:
             if x[b][j].solution_value() == 1:
                 bike_assignment.append((b, j))
                 print(f"利用者 {j}: 自転車 {b}")
-                # jのtpep_dropoff_datetimeを取得するし自転車ステータス更新する
-                B.loc[b, 'DODatetime'] = J.loc[j, 'tpep_dropoff_datetime']
 else:
     raise RuntimeError("No feasible solution was found.")
 
 print(bike_assignment)
 
 plot_result(bike_assignment, request_origins, current_locations, latitude_range, longitude_range)
+
+# 割り当てプロット後に自転車のステータスを更新する
+for b, j in bike_assignment:
+    # jのtpep_dropoff_datetimeを取得するし自転車ステータス更新する
+    B.at[b, 'DODatetime'] = J.loc[j, 'tpep_dropoff_datetime']
+    # jのDOLocationIDを取得して自転車のCurrent Locationを更新する
+    B.at[b, 'Current Location'] = get_coordinates_by_location_id(J.loc[j, 'DOLocationID'])
+
+B
 
 """
 
