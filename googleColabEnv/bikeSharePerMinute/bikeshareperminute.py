@@ -36,6 +36,7 @@ import folium
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+from datetime import datetime
 from geopy.distance import geodesic
 from ortools.linear_solver import pywraplp
 from pandas import DataFrame
@@ -71,6 +72,9 @@ random_sample['Current Location'] = random_sample['Home Position']
 # 結果のデータフレームを整形
 B = random_sample[['Bike ID', 'Home Position', 'Current Location']]
 B.set_index("Bike ID", inplace=True)
+
+# DODatetimeカラムを追加して初期値をNaTに設定
+B['DODatetime'] = pd.NaT
 
 # データの中身を確認
 B
@@ -172,13 +176,20 @@ def generate_before_trip_distances(
 
     return before_trip_distances
 
-# デバッグ
-# ユーザーリクエストJに対して移動された自転車Bにおける、自転車の定位置との距離行列
-distances = generate_after_trip_distances(B, J)
-print(distances)
 
-initial_distances = generate_before_trip_distances(B, J)
-print(initial_distances)
+'''利用可能な自転車の集合を返す関数'''
+def get_available_bikes(
+    df_bikes: pd.DataFrame
+) -> np.ndarray:
+    # 現在時刻を取得
+    # current_time = datetime.now()
+    # テストデータとしてcurrent_timeを自作する
+    current_time = datetime(2023, 1, 1, 0, 0, 2)
+
+    # 利用可能な自転車を1、不可能な自転車を0とする行列を作成
+    available_bikes = (B['DODatetime'].isna() | (B['DODatetime'] < current_time)).astype(int)
+
+    return available_bikes.values
 
 '''ユーザーの位置と自転車の位置をプロットする関数'''
 def plot_users_and_bikes(
@@ -207,6 +218,50 @@ def plot_users_and_bikes(
 
     return m
 
+'''自転車とユーザーを，割り当てられた自転車ごとに異なる色で塗り分けてプロットする関数'''
+def plot_result(
+    bike_assignment: list[tuple[int, int]],
+    user_locations: np.ndarray,
+    bike_locations: np.ndarray,
+    latitude_range: tuple[float, float],  # 描画範囲 (緯度)
+    longitude_range: tuple[float, float],  # 描画範囲 (経度)
+):
+    # マップを用意
+    m = folium.Map(
+        [sum(latitude_range) / 2, sum(longitude_range) / 2],
+        tiles="OpenStreetMap",
+        zoom_start=11,
+    )
+
+    # 色の用意
+    colormap = cm.linear.Set1_09.scale(0, len(bike_locations)).to_step(len(bike_locations))  # type: ignore
+
+    # 車のプロット (k 番目の自転車を色 k で塗る)
+    for bike_index, (latitude, longitude) in enumerate(bike_locations):
+        folium.Marker(
+            location=(latitude, longitude),
+            popup=f"bike {bike_index}",
+            icon=folium.Icon(
+                icon="bicycle", prefix="fa", color="white", icon_color=colormap(bike_index)
+            ),
+        ).add_to(m)
+
+    # 利用者のプロット (自転車 k に乗るユーザーを色 k で塗る)
+    for bike_index, user_index in bike_assignment:
+        latitude, longitude = user_locations[user_index]
+        folium.Marker(
+            location=(latitude, longitude),
+            popup=f"bike {bike_index}",
+            icon=folium.Icon(
+                icon="user",
+                prefix="fa",
+                color="white",
+                icon_color=colormap(bike_index),
+            ),
+        ).add_to(m)
+
+    return m
+
 # latitudeカラムとlongitudeカラムの最大値と最小値を取得
 latitude_max = df_locations['Latitude'].max()
 latitude_min = df_locations['Latitude'].min()
@@ -216,6 +271,19 @@ longitude_min = df_locations['Longitude'].min()
 # 結果を表示
 print(f"Latitude: max = {latitude_max}, min = {latitude_min}")
 print(f"Longitude: max = {longitude_max}, min = {longitude_min}")
+
+"""### 以下処理は再帰的に実行する"""
+
+# デバッグ
+# ユーザーリクエストJに対して移動された自転車Bにおける、自転車の定位置との距離行列
+distances = generate_after_trip_distances(B, J)
+print(distances)
+
+initial_distances = generate_before_trip_distances(B, J)
+print(initial_distances)
+
+available_bikes = get_available_bikes(B)
+print(available_bikes)
 
 # NYC
 latitude_range = (latitude_min - 0.1, latitude_max + 0.1)
@@ -287,6 +355,12 @@ for b in range(B.shape[0]):
         if initial_distances[b][j] > R:
             solver.Add(x[b][j] == 0)
 
+# 他ユーザーに割り当てられていない利用可能な自転車のみを割り当てる
+for b in range(available_bikes.shape[0]):
+    if available_bikes[b] == 0:
+        for j in range(J.shape[0]):
+            solver.Add(x[b][j] == 0)
+
 # ソルバーを実行
 status = solver.Solve()
 print(status)
@@ -299,59 +373,12 @@ if status == pywraplp.Solver.OPTIMAL:
             if x[b][j].solution_value() == 1:
                 bike_assignment.append((b, j))
                 print(f"利用者 {j}: 自転車 {b}")
+                # jのtpep_dropoff_datetimeを取得するし自転車ステータス更新する
+                B.loc[b, 'DODatetime'] = J.loc[j, 'tpep_dropoff_datetime']
 else:
     raise RuntimeError("No feasible solution was found.")
 
 print(bike_assignment)
-
-# debug
-# for i in range(10):
-#   for j in range(12):
-#     print(x[i][j].solution_value())
-
-'''自転車とユーザーを，割り当てられた自転車ごとに異なる色で塗り分けてプロットする関数'''
-def plot_result(
-    bike_assignment: list[tuple[int, int]],
-    user_locations: np.ndarray,
-    bike_locations: np.ndarray,
-    latitude_range: tuple[float, float],  # 描画範囲 (緯度)
-    longitude_range: tuple[float, float],  # 描画範囲 (経度)
-):
-    # マップを用意
-    m = folium.Map(
-        [sum(latitude_range) / 2, sum(longitude_range) / 2],
-        tiles="OpenStreetMap",
-        zoom_start=11,
-    )
-
-    # 色の用意
-    colormap = cm.linear.Set1_09.scale(0, len(bike_locations)).to_step(len(bike_locations))  # type: ignore
-
-    # 車のプロット (k 番目の自転車を色 k で塗る)
-    for bike_index, (latitude, longitude) in enumerate(bike_locations):
-        folium.Marker(
-            location=(latitude, longitude),
-            popup=f"bike {bike_index}",
-            icon=folium.Icon(
-                icon="bicycle", prefix="fa", color="white", icon_color=colormap(bike_index)
-            ),
-        ).add_to(m)
-
-    # 利用者のプロット (自転車 k に乗るユーザーを色 k で塗る)
-    for bike_index, user_index in bike_assignment:
-        latitude, longitude = user_locations[user_index]
-        folium.Marker(
-            location=(latitude, longitude),
-            popup=f"bike {bike_index}",
-            icon=folium.Icon(
-                icon="user",
-                prefix="fa",
-                color="white",
-                icon_color=colormap(bike_index),
-            ),
-        ).add_to(m)
-
-    return m
 
 plot_result(bike_assignment, request_origins, current_locations, latitude_range, longitude_range)
 
