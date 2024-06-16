@@ -236,13 +236,17 @@ def plot_result(
     # 色の用意
     colormap = cm.linear.Set1_09.scale(0, len(bike_locations)).to_step(len(bike_locations))  # type: ignore
 
+    # 自転車が割り当てられているかを確認するためのフラグ
+    assigned_bikes = {bike_index for bike_index, _ in bike_assignment}
+
     # 車のプロット (k 番目の自転車を色 k で塗る)
     for bike_index, (latitude, longitude) in enumerate(bike_locations):
+        color = colormap(bike_index) if bike_index in assigned_bikes else 'gray'
         folium.Marker(
             location=(latitude, longitude),
             popup=f"bike {bike_index}",
             icon=folium.Icon(
-                icon="bicycle", prefix="fa", color="white", icon_color=colormap(bike_index)
+                icon="bicycle", prefix="fa", color="white", icon_color=color
             ),
         ).add_to(m)
 
