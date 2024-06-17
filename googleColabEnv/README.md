@@ -9,5 +9,8 @@
 ### `/formatLookUpCSV`
 ロケーションIDから実際の座標をマッピングするためのCSVを生成するプログラム
 
+### `/optimizationBasedDispatchModel`
+目的関数と制約条件を一通り実装したモデル．`bikeSharePerMinute.ipynb`をモジュール化したプログラム
+
 ### `/routingProblem`
 最適化問題のサンプルプログラム
