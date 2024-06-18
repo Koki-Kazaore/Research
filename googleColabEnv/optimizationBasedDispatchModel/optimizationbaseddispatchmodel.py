@@ -28,13 +28,10 @@ import ipdb #デバッグ用
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-# import pdb # デバッグ用
 from datetime import datetime
 from geopy.distance import geodesic
 from ortools.linear_solver import pywraplp
 from pandas import DataFrame
-
-"""# test"""
 
 # データの準備
 
