@@ -135,12 +135,13 @@ class optimizationBasedDispatchModel():
               # df_requestsのj行目のDOLocationIDを取得する
               request_destination_id = df_requests.iloc[j].loc['DOLocationID']
               request_destination = self._get_coordinates_by_location_id(request_destination_id)
+              # print("リクエストされたユーザーの目的地 位置座標:", request_destination)
               after_trip_distances[b, j] = geodesic(
                   home_position, request_destination
               ).m  # 単位はメートル
 
-      print('-----after_trip_distances-----')
-      print(after_trip_distances)
+      # print('-----after_trip_distances-----')
+      # print(after_trip_distances)
       return after_trip_distances
 
 
@@ -163,12 +164,13 @@ class optimizationBasedDispatchModel():
               # df_requestsのj行目のPULocationIDを取得する
               request_pickup_id = df_requests.iloc[j].loc['PULocationID']
               request_pickup = self._get_coordinates_by_location_id(request_pickup_id)
+              # print("リクエストされたユーザーの位置座標:", request_pickup)
               before_trip_distances[b, j] = geodesic(
                   current_location, request_pickup
               ).m  # 単位はメートル
 
-      print('-----before_trip_distances-----')
-      print(before_trip_distances)
+      # print('-----before_trip_distances-----')
+      # print(before_trip_distances)
       return before_trip_distances
 
 
@@ -185,8 +187,8 @@ class optimizationBasedDispatchModel():
       # 利用可能な自転車を1、不可能な自転車を0とする行列を作成
       available_bikes = (B['DODatetime'].isna() | (B['DODatetime'] < current_time)).astype(int)
       # available_bikes = ((self.df_bikes['DODatetime'] == pd.NaT) | (self.df_bikes['DODatetime'] < current_time)).astype(int)
-      print('-----available_bikes.values-----')
-      print(available_bikes.values)
+      # print('-----available_bikes.values-----')
+      # print(available_bikes.values)
       return available_bikes.values
 
 
@@ -216,8 +218,8 @@ class optimizationBasedDispatchModel():
     # 利用可能な自転車を取得する
     # df_requestsの最終行のtpep_pickup_datetimeカラムの値を取得する
     current_time = df_requests.iloc[-1]['tpep_pickup_datetime']
-    print('-----current_time-----')
-    print(current_time)
+    # print('-----current_time-----')
+    # print(current_time)
     available_bikes = self._get_available_bikes(current_time)
 
     # 問題の正規化
@@ -276,7 +278,7 @@ class optimizationBasedDispatchModel():
     status = solver.Solve()
 
     if status == pywraplp.Solver.OPTIMAL:
-        print('解が見つかりました:')
+        # print('解が見つかりました:')
         bike_assignment = []
         for b in range(B.shape[0]):
             for j in range(J.shape[0]):
