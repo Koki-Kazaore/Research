@@ -288,11 +288,41 @@ class optimizationBasedDispatchModel():
     else:
         raise RuntimeError("No feasible solution was found.")
 
-# optimizationBasedDispatchModelのインスタンス作成
+"""# 動作確認"""
+
+# optimizationBasedDispatchModelの初期化・インスタンス作成
 optimizationBasedDispatchModel = optimizationBasedDispatchModel(df_locations, B)
 
-# solve()を実行
-bike_assignment = optimizationBasedDispatchModel.solve(J)
+# モデリングするためにユーザーリクエストデータを整形する
 
-print('-----optimizationBasedDispatchModelの戻り値-----')
-print(bike_assignment)
+# tpep_pickup_datetimeをdatetime型に変換
+df_requests['tpep_pickup_datetime'] = pd.to_datetime(df_requests['tpep_pickup_datetime'])
+df_requests['tpep_dropoff_datetime'] = pd.to_datetime(df_requests['tpep_dropoff_datetime'])
+
+# リクエストデータを一分ごとに分割
+start_time = df_requests['tpep_pickup_datetime'].min()
+end_time = df_requests['tpep_pickup_datetime'].max()
+print(f"リクエストの開始時間：{start_time}")
+print(f"リクエストの終了時間：{end_time}")
+
+# データを1分ごとに処理
+current_time = start_time
+while current_time < end_time:
+    next_time = current_time + pd.Timedelta(minutes=1)
+    # 現在の1分間のリクエストを抽出
+    J = df_requests[(df_requests['tpep_pickup_datetime'] >= current_time) & (df_requests['tpep_pickup_datetime'] < next_time)]
+    # print(J)
+    if not J.empty:
+        # solve()を実行
+        # print(J)
+        # if current_time == datetime.strptime('2023-01-01 00:03:00', '%Y-%m-%d %H:%M:%S'):
+        #     # テスト用に3分間で停止する。
+        #     break
+        bike_assignment = optimizationBasedDispatchModel.solve(J)
+        print(f"Time: {current_time}, Assignments: {bike_assignment}")
+
+    # 次の1分へ移動
+    current_time = next_time
+
+# 自転車のステータスを確認
+B
