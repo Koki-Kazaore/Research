@@ -130,9 +130,10 @@ class optimizationBasedDispatchModel():
       # 距離行列を初期化
       after_trip_distances = np.zeros((num_bikes, num_requests))
       for b in range(num_bikes):
-          home_position = self.df_bikes.loc[b, 'Home Position']
+          home_position = self.df_bikes.iloc[b].loc['Home Position']
           for j in range(num_requests):
-              request_destination_id = df_requests.loc[j, 'DOLocationID']
+              # df_requestsのj行目のDOLocationIDを取得する
+              request_destination_id = df_requests.iloc[j].loc['DOLocationID']
               request_destination = self._get_coordinates_by_location_id(request_destination_id)
               after_trip_distances[b, j] = geodesic(
                   home_position, request_destination
@@ -157,9 +158,10 @@ class optimizationBasedDispatchModel():
       # 距離行列を初期化
       before_trip_distances = np.zeros((num_bikes, num_requests))
       for b in range(num_bikes):
-          current_location = self.df_bikes.loc[b, 'Current Location']
+          current_location = self.df_bikes.iloc[b].loc['Current Location']
           for j in range(num_requests):
-              request_pickup_id = df_requests.loc[j, 'PULocationID']
+              # df_requestsのj行目のPULocationIDを取得する
+              request_pickup_id = df_requests.iloc[j].loc['PULocationID']
               request_pickup = self._get_coordinates_by_location_id(request_pickup_id)
               before_trip_distances[b, j] = geodesic(
                   current_location, request_pickup
