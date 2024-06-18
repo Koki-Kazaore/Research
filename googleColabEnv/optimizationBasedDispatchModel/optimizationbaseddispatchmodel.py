@@ -105,9 +105,15 @@ class optimizationBasedDispatchModel():
   def _get_coordinates_by_location_id(self, location_id):
     row = self.df_locations[self.df_locations['LocationID'] == location_id]
     if not row.empty:
-      return (row.iloc[0]['Latitude'], row.iloc[0]['Longitude'])
+        latitude = row.iloc[0]['Latitude']
+        longitude = row.iloc[0]['Longitude']
+        # 緯度と経度が有効な数値であるかどうかを確認する
+        if pd.notna(latitude) and pd.notna(longitude):
+            return (latitude, longitude)
+        else:
+            return None
     else:
-      return None
+        return None
 
 
   '''ユーザーリクエストJに対して移動後の自転車Bの位置関係を表す距離行列を返す関数'''
