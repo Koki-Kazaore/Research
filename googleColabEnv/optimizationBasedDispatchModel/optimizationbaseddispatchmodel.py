@@ -63,6 +63,10 @@ B['DODatetime'] = pd.NaT
 B
 
 '''ユーザーリクエストの集合'''
+
+STARTING_DATE = '2023-01-01 0:00'
+END_DATE = '2023-01-01 1:00'
+
 # ParquetファイルのURL
 url = 'https://d37ci6vzurychx.cloudfront.net/trip-data/yellow_tripdata_2023-01.parquet'
 
@@ -74,9 +78,9 @@ df_requests = df[['tpep_pickup_datetime', 'tpep_dropoff_datetime', 'PULocationID
 
 # データのフィルタリング
 # 2023年1月1日以前のデータを削除
-df_requests = df_requests[df_requests['tpep_pickup_datetime'] >= '2023-01-01']
+df_requests = df_requests[df_requests['tpep_pickup_datetime'] >= STARTING_DATE]
 # 2023年2月1日以降のデータを削除
-df_requests = df_requests[df_requests['tpep_pickup_datetime'] <= '2023-01-31']
+df_requests = df_requests[df_requests['tpep_pickup_datetime'] < END_DATE]
 
 # ピックアップタイムの昇順で並び替え
 df_requests = df_requests.sort_values(by='tpep_pickup_datetime')
@@ -89,26 +93,6 @@ print(df_requests.head())
 
 # データフレームの情報を表示
 print(df_requests.info())
-
-# モデリングするためにユーザーリクエストデータを整形する
-
-# tpep_pickup_datetimeをdatetime型に変換
-df_requests['tpep_pickup_datetime'] = pd.to_datetime(df_requests['tpep_pickup_datetime'])
-df_requests['tpep_dropoff_datetime'] = pd.to_datetime(df_requests['tpep_dropoff_datetime'])
-
-# 一か月分のデータを一分ごとに分割
-# start_time = df_requests['tpep_pickup_datetime'].min()
-# end_time = df_requests['tpep_pickup_datetime'].max()
-
-# 最初の1分のデータを抽出
-start_time = df_requests['tpep_pickup_datetime'].min()
-end_time = start_time + pd.Timedelta(minutes=1)
-
-# まずは最初の1分間のリクエストをユーザーリクエストの集合として扱う
-J = df_requests[(df_requests['tpep_pickup_datetime'] >= start_time) & (df_requests['tpep_pickup_datetime'] < end_time)]
-
-# type(J)
-J
 
 # optimizationBasedDispatchModelクラスを定義
 class optimizationBasedDispatchModel():
