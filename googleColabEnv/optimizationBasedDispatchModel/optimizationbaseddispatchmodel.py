@@ -198,9 +198,11 @@ class optimizationBasedDispatchModel():
   ):
       for b, j in bike_assignment:
           # jのtpep_dropoff_datetimeを取得するし自転車ステータス更新する
-          self.df_bikes.at[b, 'DODatetime'] = df_requests.loc[j, 'tpep_dropoff_datetime']
+          # df_requestsのインデックスjに対応する行を取得
+          request_row = df_requests.iloc[j]
+          self.df_bikes.at[b, 'DODatetime'] = request_row['tpep_dropoff_datetime']
           # jのDOLocationIDを取得して自転車のCurrent Locationを更新する
-          self.df_bikes.at[b, 'Current Location'] = self._get_coordinates_by_location_id(df_requests.loc[j, 'DOLocationID'])
+          self.df_bikes.at[b, 'Current Location'] = self._get_coordinates_by_location_id(request_row['DOLocationID'])
 
 
   '''最適化メイン処理'''
