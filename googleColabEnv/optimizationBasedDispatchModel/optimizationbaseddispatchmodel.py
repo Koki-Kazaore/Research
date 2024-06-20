@@ -28,13 +28,10 @@ import ipdb #デバッグ用
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-# import pdb # デバッグ用
 from datetime import datetime
 from geopy.distance import geodesic
 from ortools.linear_solver import pywraplp
 from pandas import DataFrame
-
-"""# test"""
 
 # データの準備
 
@@ -66,6 +63,10 @@ B['DODatetime'] = pd.NaT
 B
 
 '''ユーザーリクエストの集合'''
+
+STARTING_DATE = '2023-01-01 0:00'
+END_DATE = '2023-01-01 1:00'
+
 # ParquetファイルのURL
 url = 'https://d37ci6vzurychx.cloudfront.net/trip-data/yellow_tripdata_2023-01.parquet'
 
@@ -77,9 +78,9 @@ df_requests = df[['tpep_pickup_datetime', 'tpep_dropoff_datetime', 'PULocationID
 
 # データのフィルタリング
 # 2023年1月1日以前のデータを削除
-df_requests = df_requests[df_requests['tpep_pickup_datetime'] >= '2023-01-01']
+df_requests = df_requests[df_requests['tpep_pickup_datetime'] >= STARTING_DATE]
 # 2023年2月1日以降のデータを削除
-df_requests = df_requests[df_requests['tpep_pickup_datetime'] <= '2023-01-31']
+df_requests = df_requests[df_requests['tpep_pickup_datetime'] < END_DATE]
 
 # ピックアップタイムの昇順で並び替え
 df_requests = df_requests.sort_values(by='tpep_pickup_datetime')
@@ -93,26 +94,6 @@ print(df_requests.head())
 # データフレームの情報を表示
 print(df_requests.info())
 
-# モデリングするためにユーザーリクエストデータを整形する
-
-# tpep_pickup_datetimeをdatetime型に変換
-df_requests['tpep_pickup_datetime'] = pd.to_datetime(df_requests['tpep_pickup_datetime'])
-df_requests['tpep_dropoff_datetime'] = pd.to_datetime(df_requests['tpep_dropoff_datetime'])
-
-# 一か月分のデータを一分ごとに分割
-# start_time = df_requests['tpep_pickup_datetime'].min()
-# end_time = df_requests['tpep_pickup_datetime'].max()
-
-# 最初の1分のデータを抽出
-start_time = df_requests['tpep_pickup_datetime'].min()
-end_time = start_time + pd.Timedelta(minutes=1)
-
-# まずは最初の1分間のリクエストをユーザーリクエストの集合として扱う
-J = df_requests[(df_requests['tpep_pickup_datetime'] >= start_time) & (df_requests['tpep_pickup_datetime'] < end_time)]
-
-# type(J)
-J
-
 # optimizationBasedDispatchModelクラスを定義
 class optimizationBasedDispatchModel():
   def __init__(self, df_locations, df_bikes):
@@ -124,9 +105,15 @@ class optimizationBasedDispatchModel():
   def _get_coordinates_by_location_id(self, location_id):
     row = self.df_locations[self.df_locations['LocationID'] == location_id]
     if not row.empty:
-      return (row.iloc[0]['Latitude'], row.iloc[0]['Longitude'])
+        latitude = row.iloc[0]['Latitude']
+        longitude = row.iloc[0]['Longitude']
+        # 緯度と経度が有効な数値であるかどうかを確認する
+        if pd.notna(latitude) and pd.notna(longitude):
+            return (latitude, longitude)
+        else:
+            return None
     else:
-      return None
+        return None
 
 
   '''ユーザーリクエストJに対して移動後の自転車Bの位置関係を表す距離行列を返す関数'''
@@ -143,16 +130,18 @@ class optimizationBasedDispatchModel():
       # 距離行列を初期化
       after_trip_distances = np.zeros((num_bikes, num_requests))
       for b in range(num_bikes):
-          home_position = self.df_bikes.loc[b, 'Home Position']
+          home_position = self.df_bikes.iloc[b].loc['Home Position']
           for j in range(num_requests):
-              request_destination_id = df_requests.loc[j, 'DOLocationID']
+              # df_requestsのj行目のDOLocationIDを取得する
+              request_destination_id = df_requests.iloc[j].loc['DOLocationID']
               request_destination = self._get_coordinates_by_location_id(request_destination_id)
+              # print("リクエストされたユーザーの目的地 位置座標:", request_destination)
               after_trip_distances[b, j] = geodesic(
                   home_position, request_destination
               ).m  # 単位はメートル
 
-      print('-----after_trip_distances-----')
-      print(after_trip_distances)
+      # print('-----after_trip_distances-----')
+      # print(after_trip_distances)
       return after_trip_distances
 
 
@@ -170,16 +159,18 @@ class optimizationBasedDispatchModel():
       # 距離行列を初期化
       before_trip_distances = np.zeros((num_bikes, num_requests))
       for b in range(num_bikes):
-          current_location = self.df_bikes.loc[b, 'Current Location']
+          current_location = self.df_bikes.iloc[b].loc['Current Location']
           for j in range(num_requests):
-              request_pickup_id = df_requests.loc[j, 'PULocationID']
+              # df_requestsのj行目のPULocationIDを取得する
+              request_pickup_id = df_requests.iloc[j].loc['PULocationID']
               request_pickup = self._get_coordinates_by_location_id(request_pickup_id)
+              # print("リクエストされたユーザーの位置座標:", request_pickup)
               before_trip_distances[b, j] = geodesic(
                   current_location, request_pickup
               ).m  # 単位はメートル
 
-      print('-----before_trip_distances-----')
-      print(before_trip_distances)
+      # print('-----before_trip_distances-----')
+      # print(before_trip_distances)
       return before_trip_distances
 
 
@@ -196,8 +187,8 @@ class optimizationBasedDispatchModel():
       # 利用可能な自転車を1、不可能な自転車を0とする行列を作成
       available_bikes = (B['DODatetime'].isna() | (B['DODatetime'] < current_time)).astype(int)
       # available_bikes = ((self.df_bikes['DODatetime'] == pd.NaT) | (self.df_bikes['DODatetime'] < current_time)).astype(int)
-      print('-----available_bikes.values-----')
-      print(available_bikes.values)
+      # print('-----available_bikes.values-----')
+      # print(available_bikes.values)
       return available_bikes.values
 
 
@@ -209,9 +200,11 @@ class optimizationBasedDispatchModel():
   ):
       for b, j in bike_assignment:
           # jのtpep_dropoff_datetimeを取得するし自転車ステータス更新する
-          self.df_bikes.at[b, 'DODatetime'] = df_requests.loc[j, 'tpep_dropoff_datetime']
+          # df_requestsのインデックスjに対応する行を取得
+          request_row = df_requests.iloc[j]
+          self.df_bikes.at[b, 'DODatetime'] = request_row['tpep_dropoff_datetime']
           # jのDOLocationIDを取得して自転車のCurrent Locationを更新する
-          self.df_bikes.at[b, 'Current Location'] = self._get_coordinates_by_location_id(df_requests.loc[j, 'DOLocationID'])
+          self.df_bikes.at[b, 'Current Location'] = self._get_coordinates_by_location_id(request_row['DOLocationID'])
 
 
   '''最適化メイン処理'''
@@ -225,8 +218,8 @@ class optimizationBasedDispatchModel():
     # 利用可能な自転車を取得する
     # df_requestsの最終行のtpep_pickup_datetimeカラムの値を取得する
     current_time = df_requests.iloc[-1]['tpep_pickup_datetime']
-    print('-----current_time-----')
-    print(current_time)
+    # print('-----current_time-----')
+    # print(current_time)
     available_bikes = self._get_available_bikes(current_time)
 
     # 問題の正規化
@@ -285,7 +278,7 @@ class optimizationBasedDispatchModel():
     status = solver.Solve()
 
     if status == pywraplp.Solver.OPTIMAL:
-        print('解が見つかりました:')
+        # print('解が見つかりました:')
         bike_assignment = []
         for b in range(B.shape[0]):
             for j in range(J.shape[0]):
@@ -297,11 +290,41 @@ class optimizationBasedDispatchModel():
     else:
         raise RuntimeError("No feasible solution was found.")
 
-# optimizationBasedDispatchModelのインスタンス作成
+"""# 動作確認"""
+
+# optimizationBasedDispatchModelの初期化・インスタンス作成
 optimizationBasedDispatchModel = optimizationBasedDispatchModel(df_locations, B)
 
-# solve()を実行
-bike_assignment = optimizationBasedDispatchModel.solve(J)
+# モデリングするためにユーザーリクエストデータを整形する
 
-print('-----optimizationBasedDispatchModelの戻り値-----')
-print(bike_assignment)
+# tpep_pickup_datetimeをdatetime型に変換
+df_requests['tpep_pickup_datetime'] = pd.to_datetime(df_requests['tpep_pickup_datetime'])
+df_requests['tpep_dropoff_datetime'] = pd.to_datetime(df_requests['tpep_dropoff_datetime'])
+
+# リクエストデータを一分ごとに分割
+start_time = df_requests['tpep_pickup_datetime'].min()
+end_time = df_requests['tpep_pickup_datetime'].max()
+print(f"リクエストの開始時間：{start_time}")
+print(f"リクエストの終了時間：{end_time}")
+
+# データを1分ごとに処理
+current_time = start_time
+while current_time < end_time:
+    next_time = current_time + pd.Timedelta(minutes=1)
+    # 現在の1分間のリクエストを抽出
+    J = df_requests[(df_requests['tpep_pickup_datetime'] >= current_time) & (df_requests['tpep_pickup_datetime'] < next_time)]
+    # print(J)
+    if not J.empty:
+        # solve()を実行
+        # print(J)
+        # if current_time == datetime.strptime('2023-01-01 00:03:00', '%Y-%m-%d %H:%M:%S'):
+        #     # テスト用に3分間で停止する。
+        #     break
+        bike_assignment = optimizationBasedDispatchModel.solve(J)
+        print(f"Time: {current_time}, Assignments: {bike_assignment}")
+
+    # 次の1分へ移動
+    current_time = next_time
+
+# 自転車のステータスを確認
+B
