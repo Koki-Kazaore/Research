@@ -207,6 +207,13 @@ class optimizationBasedDispatchModel():
           self.df_bikes.at[b, 'Current Location'] = self._get_coordinates_by_location_id(request_row['DOLocationID'])
 
 
+  '''結果出力用メソッド'''
+  def _print_results(self, result_dict):
+      # 辞書型のそれぞれのデータに対して"key: value"形式で出力する
+      for key, value in result_dict.items():
+          print(f"{key}: {value}")
+      print("-------------------------------------------------------")
+
   '''最適化メイン処理'''
   def solve(self, df_requests):
     # ipdb.set_trace()  # ブレークポイントを設定
@@ -286,7 +293,7 @@ class optimizationBasedDispatchModel():
                     bike_assignment.append((b, j))
                     # print(f"利用者 {j}: 自転車 {b}")
         self._update_bike_status(bike_assignment, df_requests)
-        return bike_assignment
+        self._print_results(result_dict)
     else:
         raise RuntimeError("No feasible solution was found.")
 
