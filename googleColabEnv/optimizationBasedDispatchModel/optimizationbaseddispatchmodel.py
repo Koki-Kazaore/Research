@@ -65,7 +65,7 @@ B
 '''ユーザーリクエストの集合'''
 
 STARTING_DATE = '2023-01-01 0:00'
-END_DATE = '2023-01-01 1:00'
+END_DATE = '2023-01-01 0:10'
 
 # ParquetファイルのURL
 url = 'https://d37ci6vzurychx.cloudfront.net/trip-data/yellow_tripdata_2023-01.parquet'
