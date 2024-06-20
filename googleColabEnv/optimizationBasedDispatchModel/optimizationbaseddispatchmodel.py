@@ -335,8 +335,14 @@ while current_time < end_time:
         # if current_time == datetime.strptime('2023-01-01 00:03:00', '%Y-%m-%d %H:%M:%S'):
         #     # テスト用に3分間で停止する。
         #     break
-        bike_assignment = optimizationBasedDispatchModel.solve(J)
-        print(f"Time: {current_time}, Assignments: {bike_assignment}")
+
+        #本番用
+        # bike_assignment = optimizationBasedDispatchModel.solve(J)
+        # print(f"Time: {current_time}, Assignments: {bike_assignment}")
+
+        # テスト用
+        print(f"Time: {current_time}")
+        optimizationBasedDispatchModel.solve(J)
 
     # 次の1分へ移動
     current_time = next_time
