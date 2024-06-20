@@ -293,7 +293,15 @@ class optimizationBasedDispatchModel():
                     bike_assignment.append((b, j))
                     # print(f"利用者 {j}: 自転車 {b}")
         self._update_bike_status(bike_assignment, df_requests)
+        # _print_results()に結果を渡して出力する
+        result_dict = {
+            "Distance objective": distance_objective.solution_value(),
+            "Sum of assignments": sum_x.solution_value(),
+            "Objective value": objective.solution_value(),
+            "bike_assignment": bike_assignment,
+        }
         self._print_results(result_dict)
+        # return bike_assignment #←モデル検証のためコメントアウトする。実際にはこれを返す。
     else:
         raise RuntimeError("No feasible solution was found.")
 
