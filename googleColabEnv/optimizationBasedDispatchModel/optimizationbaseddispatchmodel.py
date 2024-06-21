@@ -65,7 +65,7 @@ B
 '''ユーザーリクエストの集合'''
 
 STARTING_DATE = '2023-01-01 0:00'
-END_DATE = '2023-01-01 1:00'
+END_DATE = '2023-01-01 0:10'
 
 # ParquetファイルのURL
 url = 'https://d37ci6vzurychx.cloudfront.net/trip-data/yellow_tripdata_2023-01.parquet'
@@ -207,6 +207,13 @@ class optimizationBasedDispatchModel():
           self.df_bikes.at[b, 'Current Location'] = self._get_coordinates_by_location_id(request_row['DOLocationID'])
 
 
+  '''結果出力用メソッド'''
+  def _print_results(self, result_dict):
+      # 辞書型のそれぞれのデータに対して"key: value"形式で出力する
+      for key, value in result_dict.items():
+          print(f"{key}: {value}")
+      print("-------------------------------------------------------")
+
   '''最適化メイン処理'''
   def solve(self, df_requests):
     # ipdb.set_trace()  # ブレークポイントを設定
@@ -286,7 +293,15 @@ class optimizationBasedDispatchModel():
                     bike_assignment.append((b, j))
                     # print(f"利用者 {j}: 自転車 {b}")
         self._update_bike_status(bike_assignment, df_requests)
-        return bike_assignment
+        # _print_results()に結果を渡して出力する
+        result_dict = {
+            "Distance objective": distance_objective.solution_value(),
+            "Sum of assignments": sum_x.solution_value(),
+            "Objective value": objective.solution_value(),
+            "bike_assignment": bike_assignment,
+        }
+        self._print_results(result_dict)
+        # return bike_assignment #←モデル検証のためコメントアウトする。実際にはこれを返す。
     else:
         raise RuntimeError("No feasible solution was found.")
 
@@ -320,8 +335,14 @@ while current_time < end_time:
         # if current_time == datetime.strptime('2023-01-01 00:03:00', '%Y-%m-%d %H:%M:%S'):
         #     # テスト用に3分間で停止する。
         #     break
-        bike_assignment = optimizationBasedDispatchModel.solve(J)
-        print(f"Time: {current_time}, Assignments: {bike_assignment}")
+
+        #本番用
+        # bike_assignment = optimizationBasedDispatchModel.solve(J)
+        # print(f"Time: {current_time}, Assignments: {bike_assignment}")
+
+        # テスト用
+        print(f"Time: {current_time}")
+        optimizationBasedDispatchModel.solve(J)
 
     # 次の1分へ移動
     current_time = next_time
