@@ -322,9 +322,13 @@ end_time = df_requests['tpep_pickup_datetime'].max()
 print(f"リクエストの開始時間：{start_time}")
 print(f"リクエストの終了時間：{end_time}")
 
+# マッチングプロセスのログデータ収集用時系列データ
+time_series_log_data = []
+
 # データを1分ごとに処理
 current_time = start_time
 while current_time < end_time:
+    print(f"Time: {current_time}")
     next_time = current_time + pd.Timedelta(minutes=1)
     # 現在の1分間のリクエストを抽出
     J = df_requests[(df_requests['tpep_pickup_datetime'] >= current_time) & (df_requests['tpep_pickup_datetime'] < next_time)]
@@ -336,6 +340,11 @@ while current_time < end_time:
         #     # テスト用に3分間で停止する。
         #     break
 
+        # 自転車占有率を計算する
+        available_bikes = optimizationBasedDispatchModel._get_available_bikes(current_time)
+        bikes_occupied_rate = 1 - available_bikes.sum() / len(available_bikes)
+        print(f"Bikes Occupied Rate: {bikes_occupied_rate}")
+
         #本番用
         try:
             bike_assignment = optimizationBasedDispatchModel.solve(J)
@@ -346,8 +355,20 @@ while current_time < end_time:
             print("-------------------------------------------------------")
 
         # テスト用
-        print(f"Time: {current_time}")
-        optimizationBasedDispatchModel.solve(J)
+        # print(f"Time: {current_time}")
+        # optimizationBasedDispatchModel.solve(J)
+
+        # マッチング成功率を計算する
+        matching_success_rate = len(bike_assignment) / len(J)
+        print(f"Matching Success Rate: {matching_success_rate}")
+        print("-------------------------------------------------------")
+
+        # ログ出力
+        time_series_log_data.append({
+            'time': current_time,
+            'matching_success_rate': matching_success_rate,
+            'bikes_occupied_rate': bikes_occupied_rate
+        })
 
     # 次の1分へ移動
     current_time = next_time
