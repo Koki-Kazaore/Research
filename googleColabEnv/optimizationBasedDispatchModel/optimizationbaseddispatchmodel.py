@@ -375,3 +375,22 @@ while current_time < end_time:
 
 # 自転車のステータスを確認
 B
+
+# 自転車の割り当て成功率と占有率との関係をグラフ化する
+
+# ログデータをデータフレームにコンバートする
+df_time_series = pd.DataFrame(time_series_log_data)
+
+# プロット
+plt.figure(figsize=(10, 6))
+
+plt.plot(df_time_series['time'], df_time_series['matching_success_rate'], label='Matching Success Rate')
+plt.plot(df_time_series['time'], df_time_series['bikes_occupied_rate'], label='Bikes Occupied Rate')
+
+plt.xlabel('Time')
+plt.ylabel('Rate')
+plt.title('Matching Rate and Bike Availability Rate Over Time')
+plt.legend()
+plt.grid(True)
+
+plt.show()
