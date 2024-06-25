@@ -394,3 +394,54 @@ plt.legend()
 plt.grid(True)
 
 plt.show()
+
+"""# 最終自転車分布"""
+
+'''ユーザーの位置と自転車の位置をプロットする関数'''
+def plot_users_and_bikes(
+    user_locations: np.ndarray,
+    bike_locations: np.ndarray,
+    latitude_range: tuple[float, float],  # 描画範囲 (緯度)
+    longitude_range: tuple[float, float],  # 描画範囲 (経度)
+):
+    m = folium.Map(
+        [sum(latitude_range) / 2, sum(longitude_range) / 2],
+        tiles="OpenStreetMap",
+        zoom_start=11,
+    )
+
+    for latitude, longitude in user_locations:
+        folium.Marker(
+            location=(latitude, longitude),
+            icon=folium.Icon(icon="user", prefix="fa", color="orange"),
+        ).add_to(m)
+
+    for latitude, longitude in bike_locations:
+        folium.Marker(
+            location=(latitude, longitude),
+            icon=folium.Icon(icon="bicycle", prefix="fa", color="green"),
+        ).add_to(m)
+
+    return m
+
+# latitudeカラムとlongitudeカラムの最大値と最小値を取得
+latitude_max = df_locations['Latitude'].max()
+latitude_min = df_locations['Latitude'].min()
+longitude_max = df_locations['Longitude'].max()
+longitude_min = df_locations['Longitude'].min()
+
+# 結果を表示
+print(f"Latitude: max = {latitude_max}, min = {latitude_min}")
+print(f"Longitude: max = {longitude_max}, min = {longitude_min}")
+
+# NYC
+latitude_range = (latitude_min - 0.1, latitude_max + 0.1)
+longitude_range = (longitude_min - 0.1, longitude_max + 0.1)
+print(latitude_range)
+print(longitude_range)
+
+current_locations = B['Current Location'].values
+print(type(current_locations))
+print(current_locations)
+
+plot_users_and_bikes([], current_locations, latitude_range, longitude_range)
