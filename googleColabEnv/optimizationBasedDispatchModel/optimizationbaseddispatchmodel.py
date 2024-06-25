@@ -65,7 +65,7 @@ B
 '''ユーザーリクエストの集合'''
 
 STARTING_DATE = '2023-01-01 0:00'
-END_DATE = '2023-01-01 0:10'
+END_DATE = '2023-01-02 0:00'
 
 # ParquetファイルのURL
 url = 'https://d37ci6vzurychx.cloudfront.net/trip-data/yellow_tripdata_2023-01.parquet'
@@ -212,7 +212,7 @@ class optimizationBasedDispatchModel():
       # 辞書型のそれぞれのデータに対して"key: value"形式で出力する
       for key, value in result_dict.items():
           print(f"{key}: {value}")
-      print("-------------------------------------------------------")
+      # print("-------------------------------------------------------")
 
   '''最適化メイン処理'''
   def solve(self, df_requests):
@@ -300,8 +300,8 @@ class optimizationBasedDispatchModel():
             "Objective value": objective.solution_value(),
             "bike_assignment": bike_assignment,
         }
-        self._print_results(result_dict)
-        # return bike_assignment #←モデル検証のためコメントアウトする。実際にはこれを返す。
+        self._print_results(result_dict) #←モデル検証・デバッグ用
+        return bike_assignment #←モデル検証・デバッグ時はコメントアウトする。実際にはこれを返す。
     else:
         raise RuntimeError("No feasible solution was found.")
 
