@@ -337,8 +337,13 @@ while current_time < end_time:
         #     break
 
         #本番用
-        # bike_assignment = optimizationBasedDispatchModel.solve(J)
-        # print(f"Time: {current_time}, Assignments: {bike_assignment}")
+        try:
+            bike_assignment = optimizationBasedDispatchModel.solve(J)
+            # print(f"Time: {current_time}, Assignments: {bike_assignment}")
+        except RuntimeError:
+            bike_assignment = []
+            print("No feasible solution was found.")
+            print("-------------------------------------------------------")
 
         # テスト用
         print(f"Time: {current_time}")
