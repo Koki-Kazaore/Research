@@ -65,7 +65,7 @@ B
 '''ユーザーリクエストの集合'''
 
 STARTING_DATE = '2023-01-01 0:00'
-END_DATE = '2023-01-01 0:10'
+END_DATE = '2023-01-02 0:00'
 
 # ParquetファイルのURL
 url = 'https://d37ci6vzurychx.cloudfront.net/trip-data/yellow_tripdata_2023-01.parquet'
@@ -212,7 +212,7 @@ class optimizationBasedDispatchModel():
       # 辞書型のそれぞれのデータに対して"key: value"形式で出力する
       for key, value in result_dict.items():
           print(f"{key}: {value}")
-      print("-------------------------------------------------------")
+      # print("-------------------------------------------------------")
 
   '''最適化メイン処理'''
   def solve(self, df_requests):
@@ -300,8 +300,8 @@ class optimizationBasedDispatchModel():
             "Objective value": objective.solution_value(),
             "bike_assignment": bike_assignment,
         }
-        self._print_results(result_dict)
-        # return bike_assignment #←モデル検証のためコメントアウトする。実際にはこれを返す。
+        self._print_results(result_dict) #←モデル検証・デバッグ用
+        return bike_assignment #←モデル検証・デバッグ時はコメントアウトする。実際にはこれを返す。
     else:
         raise RuntimeError("No feasible solution was found.")
 
@@ -322,9 +322,13 @@ end_time = df_requests['tpep_pickup_datetime'].max()
 print(f"リクエストの開始時間：{start_time}")
 print(f"リクエストの終了時間：{end_time}")
 
+# マッチングプロセスのログデータ収集用時系列データ
+time_series_log_data = []
+
 # データを1分ごとに処理
 current_time = start_time
 while current_time < end_time:
+    print(f"Time: {current_time}")
     next_time = current_time + pd.Timedelta(minutes=1)
     # 現在の1分間のリクエストを抽出
     J = df_requests[(df_requests['tpep_pickup_datetime'] >= current_time) & (df_requests['tpep_pickup_datetime'] < next_time)]
@@ -336,16 +340,108 @@ while current_time < end_time:
         #     # テスト用に3分間で停止する。
         #     break
 
+        # 自転車占有率を計算する
+        available_bikes = optimizationBasedDispatchModel._get_available_bikes(current_time)
+        bikes_occupied_rate = 1 - available_bikes.sum() / len(available_bikes)
+        print(f"Bikes Occupied Rate: {bikes_occupied_rate}")
+
         #本番用
-        # bike_assignment = optimizationBasedDispatchModel.solve(J)
-        # print(f"Time: {current_time}, Assignments: {bike_assignment}")
+        try:
+            bike_assignment = optimizationBasedDispatchModel.solve(J)
+            # print(f"Time: {current_time}, Assignments: {bike_assignment}")
+        except RuntimeError:
+            bike_assignment = []
+            print("No feasible solution was found.")
+            print("-------------------------------------------------------")
 
         # テスト用
-        print(f"Time: {current_time}")
-        optimizationBasedDispatchModel.solve(J)
+        # print(f"Time: {current_time}")
+        # optimizationBasedDispatchModel.solve(J)
+
+        # マッチング成功率を計算する
+        matching_success_rate = len(bike_assignment) / len(J)
+        print(f"Matching Success Rate: {matching_success_rate}")
+        print("-------------------------------------------------------")
+
+        # ログ出力
+        time_series_log_data.append({
+            'time': current_time,
+            'matching_success_rate': matching_success_rate,
+            'bikes_occupied_rate': bikes_occupied_rate
+        })
 
     # 次の1分へ移動
     current_time = next_time
 
 # 自転車のステータスを確認
 B
+
+# 自転車の割り当て成功率と占有率との関係をグラフ化する
+
+# ログデータをデータフレームにコンバートする
+df_time_series = pd.DataFrame(time_series_log_data)
+
+# プロット
+plt.figure(figsize=(10, 6))
+
+plt.plot(df_time_series['time'], df_time_series['matching_success_rate'], label='Matching Success Rate')
+plt.plot(df_time_series['time'], df_time_series['bikes_occupied_rate'], label='Bikes Occupied Rate')
+
+plt.xlabel('Time')
+plt.ylabel('Rate')
+plt.title('Matching Rate and Bike Availability Rate Over Time')
+plt.legend()
+plt.grid(True)
+
+plt.show()
+
+"""# 最終自転車分布"""
+
+'''ユーザーの位置と自転車の位置をプロットする関数'''
+def plot_users_and_bikes(
+    user_locations: np.ndarray,
+    bike_locations: np.ndarray,
+    latitude_range: tuple[float, float],  # 描画範囲 (緯度)
+    longitude_range: tuple[float, float],  # 描画範囲 (経度)
+):
+    m = folium.Map(
+        [sum(latitude_range) / 2, sum(longitude_range) / 2],
+        tiles="OpenStreetMap",
+        zoom_start=11,
+    )
+
+    for latitude, longitude in user_locations:
+        folium.Marker(
+            location=(latitude, longitude),
+            icon=folium.Icon(icon="user", prefix="fa", color="orange"),
+        ).add_to(m)
+
+    for latitude, longitude in bike_locations:
+        folium.Marker(
+            location=(latitude, longitude),
+            icon=folium.Icon(icon="bicycle", prefix="fa", color="green"),
+        ).add_to(m)
+
+    return m
+
+# latitudeカラムとlongitudeカラムの最大値と最小値を取得
+latitude_max = df_locations['Latitude'].max()
+latitude_min = df_locations['Latitude'].min()
+longitude_max = df_locations['Longitude'].max()
+longitude_min = df_locations['Longitude'].min()
+
+# 結果を表示
+print(f"Latitude: max = {latitude_max}, min = {latitude_min}")
+print(f"Longitude: max = {longitude_max}, min = {longitude_min}")
+
+# NYC
+latitude_range = (latitude_min - 0.1, latitude_max + 0.1)
+longitude_range = (longitude_min - 0.1, longitude_max + 0.1)
+print(latitude_range)
+print(longitude_range)
+
+current_locations = B['Current Location'].values
+print(type(current_locations))
+print(current_locations)
+
+plot_users_and_bikes([], current_locations, latitude_range, longitude_range)

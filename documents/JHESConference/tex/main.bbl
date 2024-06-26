@@ -1,0 +1,14 @@
+\begin{thebibliography}{1}
+
+\bibitem{近況}
+北村~舜・鈴木美緒.
+\newblock 非観光都市におけるシェアサイクルの導入動機が利用意向に及ぼす影響に関する研究.
+\newblock 自転車対策審議会資料No5, 2019.
+
+\bibitem{YellowTaxiTripRecords}
+City of~New~York.
+\newblock Yellow taxi trip records.
+\newblock \url{https://d37ci6vzurychx.cloudfront.net/trip-data/yellow_tripdata_2023-01.parquet}, 2023.
+\newblock \\Accessed: 2024-05-27.
+
+\end{thebibliography}
