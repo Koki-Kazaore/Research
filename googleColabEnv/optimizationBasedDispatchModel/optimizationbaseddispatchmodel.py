@@ -336,6 +336,7 @@ start_time = df_requests['tpep_pickup_datetime'].min()
 end_time = df_requests['tpep_pickup_datetime'].max()
 print(f"リクエストの開始時間：{start_time}")
 print(f"リクエストの終了時間：{end_time}")
+print(f"リバランスコスト初期値：{calculate_total_distance(B)}")
 
 # マッチングプロセスのログデータ収集用時系列データ
 time_series_log_data = []
@@ -376,6 +377,10 @@ while current_time < end_time:
         # マッチング成功率を計算する
         matching_success_rate = len(bike_assignment) / len(J)
         print(f"Matching Success Rate: {matching_success_rate}")
+
+        # 自転車の再配置コストを計算する
+        rebalance_cost = calculate_total_distance(B)
+        print(f"Rebalance Cost: {rebalance_cost}")
         print("-------------------------------------------------------")
 
         # ログ出力
