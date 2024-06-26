@@ -310,6 +310,21 @@ class optimizationBasedDispatchModel():
 # optimizationBasedDispatchModelの初期化・インスタンス作成
 optimizationBasedDispatchModel = optimizationBasedDispatchModel(df_locations, B)
 
+def calculate_total_distance(df):
+    """
+    データフレームからホームポジションとカレントポジションのノルムの総和を計算する関数。
+
+    :param df: ホームポジションとカレントポジションを含むデータフレーム
+    :return: 距離の総和
+    """
+    total_distance = 0
+    for _, row in df.iterrows():
+        home_pos = np.array(row['Home Position'])
+        current_loc = np.array(row['Current Location'])
+        distance = np.linalg.norm(home_pos - current_loc)
+        total_distance += distance
+    return total_distance
+
 # モデリングするためにユーザーリクエストデータを整形する
 
 # tpep_pickup_datetimeをdatetime型に変換
