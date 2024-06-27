@@ -310,6 +310,21 @@ class optimizationBasedDispatchModel():
 # optimizationBasedDispatchModelの初期化・インスタンス作成
 optimizationBasedDispatchModel = optimizationBasedDispatchModel(df_locations, B)
 
+def calculate_total_distance(df):
+    """
+    データフレームからホームポジションとカレントポジションのノルムの総和を計算する関数。
+
+    :param df: ホームポジションとカレントポジションを含むデータフレーム
+    :return: 距離の総和
+    """
+    total_distance = 0
+    for _, row in df.iterrows():
+        home_pos = np.array(row['Home Position'])
+        current_loc = np.array(row['Current Location'])
+        distance = np.linalg.norm(home_pos - current_loc)
+        total_distance += distance
+    return total_distance
+
 # モデリングするためにユーザーリクエストデータを整形する
 
 # tpep_pickup_datetimeをdatetime型に変換
@@ -321,6 +336,7 @@ start_time = df_requests['tpep_pickup_datetime'].min()
 end_time = df_requests['tpep_pickup_datetime'].max()
 print(f"リクエストの開始時間：{start_time}")
 print(f"リクエストの終了時間：{end_time}")
+print(f"リバランスコスト初期値：{calculate_total_distance(B)}")
 
 # マッチングプロセスのログデータ収集用時系列データ
 time_series_log_data = []
@@ -361,13 +377,18 @@ while current_time < end_time:
         # マッチング成功率を計算する
         matching_success_rate = len(bike_assignment) / len(J)
         print(f"Matching Success Rate: {matching_success_rate}")
+
+        # 自転車の再配置コストを計算する
+        rebalance_cost = calculate_total_distance(B)
+        print(f"Rebalance Cost: {rebalance_cost}")
         print("-------------------------------------------------------")
 
         # ログ出力
         time_series_log_data.append({
             'time': current_time,
             'matching_success_rate': matching_success_rate,
-            'bikes_occupied_rate': bikes_occupied_rate
+            'bikes_occupied_rate': bikes_occupied_rate,
+            'rebalance_cost': rebalance_cost
         })
 
     # 次の1分へ移動
@@ -376,22 +397,32 @@ while current_time < end_time:
 # 自転車のステータスを確認
 B
 
-# 自転車の割り当て成功率と占有率との関係をグラフ化する
+# 自転車の割り当て成功率と占有率とリバランスコストの関係をグラフ化する
 
 # ログデータをデータフレームにコンバートする
 df_time_series = pd.DataFrame(time_series_log_data)
 
 # プロット
-plt.figure(figsize=(10, 6))
+fig, ax1 = plt.subplots(figsize=(10, 6))
 
-plt.plot(df_time_series['time'], df_time_series['matching_success_rate'], label='Matching Success Rate')
-plt.plot(df_time_series['time'], df_time_series['bikes_occupied_rate'], label='Bikes Occupied Rate')
+# 左側のY軸に割り当て成功率と自転車の占有率をプロット
+ax1.plot(df_time_series['time'], df_time_series['matching_success_rate'], label='Matching Success Rate', color='b')
+ax1.plot(df_time_series['time'], df_time_series['bikes_occupied_rate'], label='Bikes Occupied Rate', color='g')
+ax1.set_xlabel('Time')
+ax1.set_ylabel('Rate', color='k')
+ax1.tick_params(axis='y', labelcolor='k')
 
-plt.xlabel('Time')
-plt.ylabel('Rate')
-plt.title('Matching Rate and Bike Availability Rate Over Time')
-plt.legend()
-plt.grid(True)
+# 右側のY軸にリバランスコストをプロット
+ax2 = ax1.twinx()
+ax2.plot(df_time_series['time'], df_time_series['rebalance_cost'], label='Rebalance Cost', color='r')
+ax2.set_ylabel('Rebalance Cost', color='k')
+ax2.tick_params(axis='y', labelcolor='k')
+
+# グラフのタイトルと凡例の設定
+fig.suptitle('Matching Success Rate, Bikes Occupied Rate, and Rebalance Cost Over Time')
+fig.legend(loc='upper left', bbox_to_anchor=(0.1,0.9))
+
+ax1.grid(True)
 
 plt.show()
 
