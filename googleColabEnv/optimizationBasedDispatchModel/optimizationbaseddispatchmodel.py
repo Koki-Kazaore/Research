@@ -37,7 +37,10 @@ from pandas import DataFrame
 
 '''locationID検索用CSV'''
 df_locations = pd.read_csv('/content/taxi_zone_lookup_with_coordinates.csv')
-# df_locations.set_index("LocationID", inplace=True)
+
+# 最後の2行を除外
+df_locations = df_locations.iloc[:-2]
+
 print(df_locations.head())
 
 '''自転車の集合'''
