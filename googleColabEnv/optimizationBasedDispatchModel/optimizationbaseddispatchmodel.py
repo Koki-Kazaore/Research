@@ -68,7 +68,7 @@ B
 '''ユーザーリクエストの集合'''
 
 STARTING_DATE = '2023-01-01 0:00'
-END_DATE = '2023-01-02 0:00'
+END_DATE = '2023-01-01 0:13'
 
 # ParquetファイルのURL
 url = 'https://d37ci6vzurychx.cloudfront.net/trip-data/yellow_tripdata_2023-01.parquet'
@@ -188,8 +188,8 @@ class optimizationBasedDispatchModel():
           current_time = datetime.now()
 
       # 利用可能な自転車を1、不可能な自転車を0とする行列を作成
-      available_bikes = (B['DODatetime'].isna() | (B['DODatetime'] < current_time)).astype(int)
-      # available_bikes = ((self.df_bikes['DODatetime'] == pd.NaT) | (self.df_bikes['DODatetime'] < current_time)).astype(int)
+      # available_bikes = (B['DODatetime'].isna() | (B['DODatetime'] < current_time)).astype(int)
+      available_bikes = (self.df_bikes['DODatetime'].isna() | (self.df_bikes['DODatetime'] < current_time)).astype(int)
       # print('-----available_bikes.values-----')
       # print(available_bikes.values)
       return available_bikes.values
@@ -290,8 +290,8 @@ class optimizationBasedDispatchModel():
     if status == pywraplp.Solver.OPTIMAL:
         # print('解が見つかりました:')
         bike_assignment = []
-        for b in range(B.shape[0]):
-            for j in range(J.shape[0]):
+        for b in range(self.df_bikes.shape[0]):
+            for j in range(df_requests.shape[0]):
                 if x[b][j].solution_value() == 1:
                     bike_assignment.append((b, j))
                     # print(f"利用者 {j}: 自転車 {b}")
