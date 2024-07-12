@@ -32,6 +32,7 @@ from datetime import datetime
 from geopy.distance import geodesic
 from ortools.linear_solver import pywraplp
 from pandas import DataFrame
+from scipy.interpolate import PchipInterpolator
 
 # データの準備
 
@@ -68,7 +69,7 @@ B
 '''ユーザーリクエストの集合'''
 
 STARTING_DATE = '2023-01-01 0:00'
-END_DATE = '2023-01-01 0:13'
+END_DATE = '2023-01-02 0:00'
 
 # ParquetファイルのURL
 url = 'https://d37ci6vzurychx.cloudfront.net/trip-data/yellow_tripdata_2023-01.parquet'
@@ -405,19 +406,38 @@ B
 # ログデータをデータフレームにコンバートする
 df_time_series = pd.DataFrame(time_series_log_data)
 
+# 時間データを数値に変換
+time = df_time_series['time'].astype('int64') / 1e9  # 秒に変換
+
+# 補間のための新しい時間データを作成
+time_new = np.linspace(time.min(), time.max(), 300)
+
+# PCHIP補間
+pchip_matching_success_rate = PchipInterpolator(time, df_time_series['matching_success_rate'])
+matching_success_rate_smooth = pchip_matching_success_rate(time_new)
+
+pchip_bikes_occupied_rate = PchipInterpolator(time, df_time_series['bikes_occupied_rate'])
+bikes_occupied_rate_smooth = pchip_bikes_occupied_rate(time_new)
+
+pchip_rebalance_cost = PchipInterpolator(time, df_time_series['rebalance_cost'])
+rebalance_cost_smooth = pchip_rebalance_cost(time_new)
+
 # プロット
 fig, ax1 = plt.subplots(figsize=(10, 6))
 
+# 新しい時間データをDateTimeに変換してプロット
+time_new_datetime = pd.to_datetime(time_new * 1e9)
+
 # 左側のY軸に割り当て成功率と自転車の占有率をプロット
-ax1.plot(df_time_series['time'], df_time_series['matching_success_rate'], label='Matching Success Rate', color='b')
-ax1.plot(df_time_series['time'], df_time_series['bikes_occupied_rate'], label='Bikes Occupied Rate', color='g')
+ax1.plot(time_new_datetime, matching_success_rate_smooth, label='Matching Success Rate', color='b')
+ax1.plot(time_new_datetime, bikes_occupied_rate_smooth, label='Bikes Occupied Rate', color='g')
 ax1.set_xlabel('Time')
 ax1.set_ylabel('Rate', color='k')
 ax1.tick_params(axis='y', labelcolor='k')
 
 # 右側のY軸にリバランスコストをプロット
 ax2 = ax1.twinx()
-ax2.plot(df_time_series['time'], df_time_series['rebalance_cost'], label='Rebalance Cost', color='r')
+ax2.plot(time_new_datetime, rebalance_cost_smooth, label='Rebalance Cost', color='r')
 ax2.set_ylabel('Rebalance Cost', color='k')
 ax2.tick_params(axis='y', labelcolor='k')
 
