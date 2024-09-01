@@ -18,5 +18,8 @@
 ### `/optimizationBasedDispatchModel`
 目的関数と制約条件を一通り実装したモデル．`bikeSharePerMinute.ipynb`をモジュール化したプログラム
 
+### `/randomBasedDispatchModel`
+各々のリクエストに対してランダムに自転車を割り当てるプログラム．最適化ベースの割り当てと比較するためのベースラインとして構築．
+
 ### `/routingProblem`
 最適化問題のサンプルプログラム
