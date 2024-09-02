@@ -15,6 +15,9 @@
 ### `/formatLookUpCSV`
 ロケーションIDから実際の座標をマッピングするためのCSVを生成するプログラム
 
+### `/neighborhoodBasedDispatchModel`
+ユーザに対して最も近い自転車をシンプルに割り当てるプログラム
+
 ### `/optimizationBasedDispatchModel`
 目的関数と制約条件を一通り実装したモデル．`bikeSharePerMinute.ipynb`をモジュール化したプログラム
 
