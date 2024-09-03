@@ -23,3 +23,6 @@
 
 ### `/routingProblem`
 最適化問題のサンプルプログラム
+
+### `/withoutStackOptBasedDispatchModel`
+リクエストをスタックすることなく、各々のリクエストに対して`optimizationBasedDispatchModel`を適用したプログラム
