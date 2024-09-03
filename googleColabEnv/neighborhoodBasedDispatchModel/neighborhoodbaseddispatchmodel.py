@@ -126,7 +126,7 @@ class neighborhoodBasedDispatchModel:
             current_time = pd.to_datetime(current_time)
 
         # 利用可能な自転車を1、不可能な自転車を0とする行列を作成
-        available_bikes = (self.df_bikes['DODatetime'].isna() | (self.df_bikes['DODatetime'] > current_time)).astype(int)
+        available_bikes = (self.df_bikes['DODatetime'].isna() | (self.df_bikes['DODatetime'] < current_time)).astype(int)
         return available_bikes.values
 
 
