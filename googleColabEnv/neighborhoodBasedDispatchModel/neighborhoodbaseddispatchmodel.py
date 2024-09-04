@@ -389,3 +389,9 @@ print(type(current_locations))
 print(current_locations)
 
 plot_users_and_bikes([], current_locations, latitude_range, longitude_range)
+
+# ログのCSV出力
+from google.colab import files
+filename =  "result_by_neighborhoodBasedDispatchModel.csv"
+df_time_series.to_csv(filename, encoding = 'utf-8-sig')
+files.download(filename)
