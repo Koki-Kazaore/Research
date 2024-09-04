@@ -16,12 +16,8 @@ Original file is located at
 - @return `result` : 自転車IDと割り当てられたユーザーのキューインデックス
 """
 
-# デバッグ用
-!pip install ipdb
-
 import branca.colormap as cm
 import folium
-import ipdb #デバッグ用
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
