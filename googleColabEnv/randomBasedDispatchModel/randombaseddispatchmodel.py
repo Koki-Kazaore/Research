@@ -16,12 +16,8 @@ Original file is located at
 - @return `result` : 自転車IDと割り当てられたユーザーのキューインデックス
 """
 
-# デバッグ用
-!pip install ipdb
-
 import branca.colormap as cm
 import folium
-import ipdb #デバッグ用
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -391,3 +387,9 @@ print(type(current_locations))
 print(current_locations)
 
 plot_users_and_bikes([], current_locations, latitude_range, longitude_range)
+
+# ログのCSV出力
+from google.colab import files
+filename =  "result_by_randomBasedDispatchModel.csv"
+df_time_series.to_csv(filename, encoding = 'utf-8-sig')
+files.download(filename)
