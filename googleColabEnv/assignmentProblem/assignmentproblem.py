@@ -472,3 +472,104 @@ plt.legend()
 plt.show()
 
 print("移動後の自転車のノルムの総和:", calculate_total_distance(df_bikes))
+
+"""### 制約条件説明用グラフの生成
+より一般化した説明をするため。
+
+自転車の現在地とホームポジションデータをランダムに生成
+"""
+
+import pandas as pd
+import numpy as np
+
+# シード値を設定
+np.random.seed(4)
+
+# 自転車の位置情報をランダムに生成
+num_positions = 5  # 5個の位置情報を生成
+min_coord, max_coord = 0, 1000  # 座標の範囲（0から1000(m)）
+home_positions = [(np.random.randint(min_coord, max_coord), np.random.randint(min_coord, max_coord)) for _ in range(num_positions)]
+
+# 現在地情報（座標）をランダムに生成
+current_locations = [(np.random.randint(min_coord, max_coord), np.random.randint(min_coord, max_coord)) for _ in range(num_positions)]
+
+# データフレームを作成
+bike_data = {
+    'Home Position': home_positions,
+    'Current Location': current_locations
+}
+
+df_bikes = pd.DataFrame(bike_data)
+
+# Current Location == Home Positionの場合のデータを追加
+num_same_positions = 5
+same_locations =[(np.random.randint(min_coord, max_coord), np.random.randint(min_coord, max_coord)) for _ in range(num_same_positions)]
+new_row = pd.DataFrame({'Home Position': same_locations, 'Current Location': same_locations})
+df_bikes = pd.concat([df_bikes, new_row], ignore_index=True)
+
+# 'Bike ID' 列を最初のカラムとして追加
+df_bikes.insert(0, 'Bike ID', df_bikes.index)
+# Bike ID をインデックスとして設定
+df_bikes.set_index('Bike ID', inplace=True)
+
+df_bikes
+
+"""ユーザー情報を別のデータフレームとして保持する"""
+
+# 1kmの範囲
+user_data = {
+    'User': ['User 1', 'User 2'],
+    'Current Position': [(500, 450), (720, 280)],
+    'Destination': [(800, 800), (700, 700)]
+}
+
+df_users = pd.DataFrame(user_data)
+
+# 'Assigned Bike ID' 列を追加し、初期値を -1 に設定
+df_users['Assigned Bike ID'] = -1
+
+# 'User ID' 列を最初のカラムとして追加
+df_users.insert(0, 'User ID', df_users.index)
+# User ID をインデックスとして設定
+df_users.set_index('User ID', inplace=True)
+
+df_users
+
+"""以下の二種類の情報をプロットする
+- ~~自転車の現在地とホームポジションまでの方向~~
+- ユーザーの現在地と目的地までの方向
+"""
+
+import matplotlib.pyplot as plt
+
+# プロットを作成
+plt.figure(figsize=(8, 8))
+
+# 自転車と自宅位置のプロット
+for index, row in df_bikes.iterrows():
+    # 現在地をプロット
+    plt.scatter(row['Current Location'][0], row['Current Location'][1],
+                marker='o', color='blue', zorder=2,
+                label="Current Location (Bike)" if index == 0 else "")
+
+# ユーザーの位置
+for index, row in df_users.iterrows():
+    # 現在地をプロット
+    plt.scatter(row['Current Position'][0], row['Current Position'][1],
+                marker='*', color='red', s=200, zorder=1,
+                label="Current Location (User)" if index == 0 else "")
+    # ユーザーから半径250mの円をプロット
+    circle = plt.Circle(row['Current Position'], 250, color='red', fill=False, linestyle='--', zorder=3)
+    plt.gcf().gca().add_artist(circle)
+
+# アスペクト比を1:1に設定
+plt.gca().set_aspect('equal', adjustable='box')
+
+# y軸をLatitudeに設定
+plt.xlabel('x')
+# x軸をLongitudeに設定
+plt.ylabel('y')
+# plt.title('Bike Positions and Home Locations')
+plt.grid(False)
+plt.legend()
+plt.show()
