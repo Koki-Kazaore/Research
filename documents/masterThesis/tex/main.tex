@@ -1,0 +1,88 @@
+\documentclass[a4j, 10pt, twocolumn]{ltjarticle}  % 「ltjsarticle」は見た目変わるので注意
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{wrapfig}
+\usepackage{amsmath, amssymb, amsfonts}
+\usepackage{latexsym}
+\usepackage{color}
+\usepackage[normalem]{ulem}
+\usepackage[hyphens]{url}
+\usepackage{bm}
+\usepackage{here}
+\usepackage{nidanfloat}
+\usepackage{multirow}
+\usepackage{lltjext}
+
+% ==============================================
+% ページ設定のレイアウト確認
+% \usepackage{layout}
+% 本文中で「\layout」を呼び出す
+% ==============================================
+% ページ設定
+% documentclass「a4j (210*297mm)」を基準とする
+% 1inch = 72pt = 25.2mm
+% 1pt = 0.35mm
+\columnsep=10mm  % 2段組の中央の間隔
+\oddsidemargin=-5mm  % 左部の余白領域を小さくする（2段組の5mm）
+\evensidemargin=-5mm  % 右部の余白領域を小さくする（2段組の5mm）
+\textwidth=17cm  % 本文領域の広さ
+\marginparwidth=0mm  % Margin Notesの領域
+% ==============================================
+% 本文 
+\begin{document}
+    
+    % \layout
+    \onecolumn
+    \renewcommand{\thepage}{\roman{page}}
+    \setcounter{page}{1}
+
+    \input{./contents/abstract-ja.tex}  % 梗概 (Ja)
+    \input{./contents/abstract-en.tex}  % 梗概 (En)
+    \clearpage
+    \input{./contents/acknowledgment.tex}  % 謝辞
+    \clearpage
+    \tableofcontents  % 目次
+    \clearpage
+    \newpage
+
+    \twocolumn
+    \renewcommand{\thepage}{\arabic{page}}
+    \setcounter{page}{1}
+    \pagestyle{headings}
+
+    \input{./contents/chapter1.tex}  % 第1章
+    \clearpage
+    \newpage
+    \input{./contents/chapter2.tex}  % 第2章
+    \clearpage
+    \newpage
+    \input{./contents/chapter3.tex}  % 第3章
+    \clearpage
+    \newpage
+    \input{./contents/chapter4.tex}  % 第4章
+    \clearpage
+    \newpage
+    \input{./contents/chapter5.tex}  % 第5章
+    \clearpage
+    \newpage
+    \input{./contents/chapter6.tex}  % 第6章
+    \clearpage
+    \newpage
+    \input{./contents/chapter7.tex}  % 第7章
+    \clearpage
+    \newpage
+
+    \onecolumn
+    % 参考文献
+    \bibliographystyle{junsrt}
+    \bibliography{references}
+    \clearpage
+    \newpage
+    
+    % 付録
+    \appendix
+    \input{./contents/appendix.tex}
+
+\end{document}
+
