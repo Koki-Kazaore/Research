@@ -1,18 +1,24 @@
 \documentclass[a4j, 10pt, twocolumn]{ltjarticle}  % 「ltjsarticle」は見た目変わるので注意
-\usepackage{amssymb}
-\usepackage{graphicx}
-\usepackage{float}
-\usepackage{wrapfig}
 \usepackage{amsmath, amssymb, amsfonts}
-\usepackage{latexsym}
-\usepackage{color}
-\usepackage[normalem]{ulem}
-\usepackage[hyphens]{url}
 \usepackage{bm}
-\usepackage{here}
-\usepackage{nidanfloat}
-\usepackage{multirow}
+\usepackage{color}
+\usepackage{cuted}
+\usepackage{float}
+\usepackage{graphicx}
+\usepackage{wrapfig}
+\usepackage{luatexja}
+\usepackage{luatexja-fontspec}
+\usepackage{luatexja-otf}
+\usepackage{latexsym}
 \usepackage{lltjext}
+\usepackage{xcolor}
+\usepackage{needspace}
+% \usepackage{nidanfloat} 
+\usepackage[normalem]{ulem}
+\usepackage{tabularx}
+\usepackage[hyphens]{url}
+\usepackage{here}
+\usepackage{multirow}
 
 % ==============================================
 % ページ設定のレイアウト確認
@@ -42,6 +48,10 @@
     \clearpage
     \input{./contents/acknowledgment.tex}  % 謝辞
     \clearpage
+
+    % debug
+    全体進捗：\textcolor{orange}{1\%}
+    
     \tableofcontents  % 目次
     \clearpage
     \newpage

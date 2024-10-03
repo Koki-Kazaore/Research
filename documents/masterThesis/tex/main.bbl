@@ -1,3 +1,18 @@
-\begin{thebibliography}{}
+\begin{thebibliography}{1}
+
+\bibitem{wolsey2020integer}
+Laurence~A Wolsey.
+\newblock {\em Integer programming}.
+\newblock John Wiley \& Sons, 2020.
+
+\bibitem{hooker2024integer}
+John~N Hooker.
+\newblock Integer programming duality.
+\newblock In {\em Encyclopedia of Optimization}, pp. 1--13. Springer, 2024.
+
+\bibitem{gomory1960integer}
+Ralph~E Gomory and William~J Baumol.
+\newblock Integer programming and pricing.
+\newblock {\em Econometrica: Journal of the Econometric Society}, pp. 521--550, 1960.
 
 \end{thebibliography}
