@@ -1,4 +1,4 @@
-\begin{thebibliography}{1}
+\begin{thebibliography}{10}
 
 \bibitem{wolsey2020integer}
 Laurence~A Wolsey.
@@ -14,5 +14,40 @@ John~N Hooker.
 Ralph~E Gomory and William~J Baumol.
 \newblock Integer programming and pricing.
 \newblock {\em Econometrica: Journal of the Econometric Society}, pp. 521--550, 1960.
+
+\bibitem{OR-Tools}
+Google.
+\newblock About or-tools | google for developers, 2024.
+\newblock \url{https://developers.google.com/optimization/introduction}.
+
+\bibitem{CPLEX}
+IBM.
+\newblock Mathematical program solvers - ibm cplex, 2024.
+\newblock \url{https://www.ibm.com/products/ilog-cplex-optimization-studio/cplex-optimizer}.
+
+\bibitem{Gurobi}
+Gurobi.
+\newblock Gurobi optimizer - gurobi optimization, 2024.
+\newblock \url{https://www.gurobi.com/solutions/gurobi-optimizer}.
+
+\bibitem{gearhart2013comparison}
+Jared~Lee Gearhart, Kristin~Lynn Adair, Justin~David Durfee, Katherine~A Jones, Nathaniel Martin, and Richard~Joseph Detry.
+\newblock Comparison of open-source linear programming solvers.
+\newblock Technical report, Sandia National Lab.(SNL-NM), Albuquerque, NM (United States), 2013.
+
+\bibitem{CBC}
+COIN-OR Foundation.
+\newblock coin-or/cbc: Coin-or branch-and-cut solver, 2024.
+\newblock \url{https://github.com/coin-or/Cbc}.
+
+\bibitem{bolusani2024scip}
+Suresh Bolusani, Mathieu Besan{\c{c}}on, Ksenia Bestuzheva, Antonia Chmiela, Jo{\~a}o Dion{\'\i}sio, Tim Donkiewicz, Jasper van Doornmalen, Leon Eifler, Mohammed Ghannam, Ambros Gleixner, et~al.
+\newblock The scip optimization suite 9.0.
+\newblock {\em arXiv preprint arXiv:2402.17702}, 2024.
+
+\bibitem{shinano2013CIPSolver}
+Yuji Shinano, Tobias Achterberg, Timo Berthold, Stefan Heinz, Thorsten Koch, Stefan Vigerske, and Michael Winkler.
+\newblock 制約整数計画ソルバ scip の並列化.
+\newblock 2013.
 
 \end{thebibliography}
