@@ -50,4 +50,19 @@ Yuji Shinano, Tobias Achterberg, Timo Berthold, Stefan Heinz, Thorsten Koch, Ste
 \newblock 制約整数計画ソルバ scip の並列化.
 \newblock 2013.
 
+\bibitem{aboutPython}
+Raquib~Ahsan Md. Golam~Rashed.
+\newblock Python in computational science: Applications and possibilities.
+\newblock {\em International Journal of Computer Applications}, Vol.~46, No.~20, pp. 26--30, May 2012.
+
+\bibitem{shuvo2024geodesic}
+Soumen~Sikder Shuvo, Ali Aghdaei, and Zhuo Feng.
+\newblock Geodesic distance between graphs: A spectral metric for assessing the stability of graph neural networks.
+\newblock {\em arXiv preprint arXiv:2406.10500}, 2024.
+
+\bibitem{CuPy}
+Preferred Networks.
+\newblock Cupy: Numpy \& scipy for gpu, 2024.
+\newblock \url{https://cupy.dev}.
+
 \end{thebibliography}
