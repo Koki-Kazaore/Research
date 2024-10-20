@@ -1,5 +1,15 @@
 \begin{thebibliography}{10}
 
+\bibitem{WhatIsAnAPI}
+AWS.
+\newblock What is an api? - application programming interface explained - aws, 2024.
+\newblock \url{https://aws.amazon.com/what-is/api}.
+
+\bibitem{fielding2000architectural}
+Roy~Thomas Fielding.
+\newblock {\em Architectural styles and the design of network-based software architectures}.
+\newblock PhD thesis, University of California, Irvine, 2000.
+
 \bibitem{wolsey2020integer}
 Laurence~A Wolsey.
 \newblock {\em Integer programming}.
