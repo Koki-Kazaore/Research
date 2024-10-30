@@ -25,6 +25,16 @@ Ralph~E Gomory and William~J Baumol.
 \newblock Integer programming and pricing.
 \newblock {\em Econometrica: Journal of the Econometric Society}, pp. 521--550, 1960.
 
+\bibitem{newman2021BuildingMicroservices}
+S.~Newman.
+\newblock {\em Building Microservices, 2nd Edition}.
+\newblock O'Reilly Media, Inc., 2021.
+
+\bibitem{Microservices}
+James Lewis and Martin Fowler.
+\newblock Microservices, 2024.
+\newblock \url{https://martinfowler.com/articles/microservices.html}.
+
 \bibitem{OR-Tools}
 Google.
 \newblock About or-tools | google for developers, 2024.

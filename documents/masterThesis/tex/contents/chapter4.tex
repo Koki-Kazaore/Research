@@ -1,54 +1,54 @@
 % 第4章
-\section{システム設計(\textcolor{orange}{6\%})}
-  \label{sec:system_design}
+\section{システム設計(\textcolor{orange}{11\%})}
+  \label{sec:システム設計}
     \par
   
   \subsection{システム要件の定義(0\%)}
-    \label{sec:definition_of_system_requirements}
+    \label{sec:システム要件の定義}
       \par
   
       \subsubsection{ユーザー要件(0\%)}
-        \label{sec:user_requirements}
+        \label{sec:ユーザー要件}
           \par
           
       \subsubsection{機能要件(0\%)}
-        \label{sec:functional_requirements}
+        \label{sec:機能要件}
           \par
           
       \subsubsection{非機能要件(0\%)}
-        \label{sec:non-functionla_requirements}
+        \label{sec:非機能要件}
           \par
       
   \subsection{全体アーキテクチャの設計(0\%)}
-    \label{sec:overall_architecture_design}
+    \label{sec:全体アーキテクチャの設計}
       \par
       
       \subsubsection{システム構成図(0\%)}
-        \label{sec:system_configuration_diagram}
+        \label{sec:システム構成図}
           \par
           
       \subsubsection{データフローの設計(0\%)}
-        \label{sec:data_flow_design}
+        \label{sec:データフローの設計}
           \par  
   
   \subsection{スマートロックの構築(0\%)}
-    \label{sec:smart_lock_construction}
+    \label{sec:スマートロックの構築}
       \par 
       
       \subsubsection{ハードウェア設計(0\%)}
-        \label{sec:hardware_design}
+        \label{sec:ハードウェア設計}
           \par
           
       \subsubsection{組み込みソフトウェアの開発(0\%)}
-        \label{sec:embedded_software_development}
+        \label{sec:組み込みソフトウェアの開発}
           \par
           
       \subsubsection{通信プロトコルの選定(0\%)}
-        \label{sec:selection_of_communication_protocols}
+        \label{sec:通信プロトコルの選定}
           \par
           
   \subsection{マッチングモデルの設計(0\%)}
-    \label{sec:matching_model_design}
+    \label{sec:マッチングモデルの設計}
       \par
 
       \subsubsection{数理最適化モデルの定式化(\textcolor{green}{100\%})}
@@ -167,15 +167,48 @@
   \subsection{APIの設計方針(0\%)}
     \label{sec:api_design_policy}
       \par
-
-      % debug
-      \clearpage
-      \newpage
       
-      \subsubsection{API機能の定義(\textcolor{orange}{10\%})}
+      \subsubsection{API機能要件の定義と設計(\textcolor{green}{100\%})}
         \label{sec:definition_of_api_function}
-          \par (APIの重要性と目的)API(Application Programming Interface)は
+          \par API(Application Programming Interface)はアプリケーションとプログラミング的なやり取りを可能とするインターフェイスである．標準プロトコルを用いて文書化され，クライアントとサーバーの両方がそのAPIドキュメントに従っている限り，通信は期待通りに実行される．詳細は\ref{sec:コア技術の活用}節にて論じた．本研究において構築する自転車割り当てモデルをアプリケーション上のサービスとしてユーザに価値提供するためにAPIを利用する．
+          \par APIの設計においてはREST APIの設計原則に準拠して設計する．特に，RESTの設計原則ではステートレスなアーキテクチャであることが挙げられており，これによってスケーラビリティや信頼性の向上が期待できる．需要を予測することが難しいCtoCシェアサイクルサービスにおいて，ニーズに合わせたサーバー処理が求められることから適切であると判断した．また，自転車のスマートロックなどのIoTデバイスとの連携においても，軽量であり様々なIoTデバイスとの通信に広く利用されている点も選定基準の1つである．
+          \par \ref{sec:システム要件の定義}節にて定義したシステム要件から導出される，APIが提供するべき具体的な機能として，マイクロサービス単位で換算すると5つである．自転車割り当てサービス・自転車利用サービス・ユーザ管理サービス・自転車管理サービス・スマートロック操作サービスである．なお，マイクロサービスとは，マイクロサービス分野をリードする著者の1人であるSam Newman氏によると「一体となって動作する，小規模な自律的なサービス」と定義されている\scalebox{0.7}{\cite{newman2021BuildingMicroservices}}．また，James Lewis氏とMartin Fowler氏の記事によると，「1つのアプリケーションを一連の小さなサービスの組み合わせとして開発するアプローチ．これらのサービスはそれぞれの独自のプロセスで実行され，軽量なメカニズム(多くの場合はHTTPリソースAPI)を用いて通信する」と定義されている\scalebox{0.7}{\cite{Microservices}}．これらより，システムの各コンポーネントを個別にデプロイ可能なサービスとしてカウントできる単位をマイクロサービスとして定義する．
+          \par 上記のサービスに基づき，必要なAPI機能となるエンドポイントを表\ref{tab:Bikeying API エンドポイント一覧}に一覧化する．なお，本研究にて構築するAPIをBikeying APIと命名し，以後その名称を用いる．自転車割り当てサービスでは，本研究で構築する自転車割り当てモデルのメイン処理を実装し，ユーザのリクエストに基づいた最適な自転車を割り当て，レスポンスする．自転車利用サービスは，実際にユーザが自転車を検索し，予約する際に，クライアントと自転車割り当てサービスとのインターフェイスとしての役割を果たす．ユーザのリクエストをある一定期間ストックする場合などに効果を発揮する．自転車管理サービス及びユーザ管理サービスでは，それぞれ自転車やユーザの追加や削除，ステータスの管理を行う責務を果たす．スマートロック操作サービスでは，自転車割り当てサービスや自転車利用サービスの結果に基づき，対象のスマートロックの解錠・施錠をAPI経由で制御できるようにする．
+          \par ここで定義したBikeying APIのそれぞれのマイクロサービス間の基本的な関連性と，クライアントやIoTスマートロックとのインターフェースとしての立ち位置の概要を図\ref{fig:サービス間とインターフェースの関連}に示す．自転車利用サービスを軸として，クライアントからのリクエストを各々の責務を果たすマイクロサービスへと分散し，レスポンスする．IoTスマートロックの操作が必要となる場合は，図\ref{fig:サービス間とインターフェースの関連}に示す通り，スマートロック操作サービスがそのインターフェースとしての役割を果たす．
+
+          \begin{table*}[t]
+            \caption{Bikeying API エンドポイント一覧}
+            \label{tab:Bikeying API エンドポイント一覧}
+            \centering
+            \begin{tabular}{|p{3.5cm}|l|p{5cm}|l|l|} \hline
+              マイクロサービス & エンドポイント & 説明 & HTTPメソッド & 認証 \\ \hline
+              自転車管理サービス & \url{/bikes} & 自転車の現在の利用ステータスを取得する & GET & 必須 \\ \cline{2-5}
+              & \url{/bikes} & 自転車の現在の利用ステータスを更新する & PUT & 必須 \\ \cline{2-5}
+              & \url{/bikes} & シェアリング可能な自転車を追加する & POST & 必須 \\ \cline{2-5}
+              & \url{/bikes} & 自転車をシェアリングの対象から削除する & DELETE & 必須 \\ \hline
+              自転車割り当てサービス & \url{/bikes/dispatch} & ストックされたリクエストから最適な自転車を割り当てる & GET & 必須 \\ \hline
+              自転車利用サービス & \url{/bikes/request} & ユーザの現在地座標などの条件に基づいたリクエストをストックする & POST & 必須 \\ \cline{2-5}
+              & \url{/bikes/reserve} & 特定の自転車の利用を確定・予約する & POST & 必須 \\ \hline
+              ユーザ管理サービス & \url{/users/signup} & 新規ユーザ登録 & POST & なし \\ \cline{2-5}
+              & \url{/users/login} & ユーザのログイン処理 & POST & なし \\ \cline{2-5}
+              & \url{/users/logout} & ユーザのログアウト処理 & POST & 必須 \\ \cline{2-5}
+              & \url{/users/{userId}} & ユーザのプロフィール情報を取得する & GET & 必須 \\ \cline{2-5}
+              & \url{/users/{userId}} & ユーザのプロフィール情報を更新する & PUT & 必須 \\ \hline
+              スマートロック操作サービス & \url{/{lockId}/unlock} & 指定されたスマートロックを解錠する & POST & 必須 \\ \cline{2-5}
+              & \url{/{lockId}/lock} & 指定されたスマートロックを施錠する & POST & 必須 \\ \cline{2-5}
+              & \url{/{lockId}/status} & スマートロックの状態を取得する & GET & 必須 \\ \hline
+            \end{tabular}
+          \end{table*}
+
+          \begin{figure}[htbp]
+            \centering
+            \includegraphics[scale=0.5]
+            {figures/microservice-architecture.png}
+            \caption{サービス間とインターフェースの関連}
+            \label{fig:サービス間とインターフェースの関連}
+          \end{figure}
 
       \subsubsection{セキュリティと認証の設計(0\%)}
         \label{sec:security_and_authentication_design}
-          \par
+          \par $\Box$APIにおけるセキュリティ対策（例：HTTPS、APIキー、トークンベースの認証）を概説します。
+          \par $\Box$ユーザー認証・認可の方法（例：OAuth 2.0、JWT）の選定理由とその実装方針を述べます。
