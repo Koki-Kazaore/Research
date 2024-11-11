@@ -10,6 +10,10 @@ Roy~Thomas Fielding.
 \newblock {\em Architectural styles and the design of network-based software architectures}.
 \newblock PhD thesis, University of California, Irvine, 2000.
 
+\bibitem{392555}
+Ieee recommended practice for software requirements specifications.
+\newblock {\em IEEE Std 830-1993}, pp. 1--32, 1994.
+
 \bibitem{wolsey2020integer}
 Laurence~A Wolsey.
 \newblock {\em Integer programming}.
