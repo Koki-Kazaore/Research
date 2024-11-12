@@ -14,6 +14,11 @@ Roy~Thomas Fielding.
 Ieee recommended practice for software requirements specifications.
 \newblock {\em IEEE Std 830-1993}, pp. 1--32, 1994.
 
+\bibitem{glinz2007non}
+Martin Glinz.
+\newblock On non-functional requirements.
+\newblock In {\em 15th IEEE international requirements engineering conference (RE 2007)}, pp. 21--26. IEEE, 2007.
+
 \bibitem{wolsey2020integer}
 Laurence~A Wolsey.
 \newblock {\em Integer programming}.
