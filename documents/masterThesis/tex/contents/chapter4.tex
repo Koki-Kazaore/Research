@@ -1,5 +1,5 @@
 % 第4章
-\section{システム設計(\textcolor{orange}{55\%})}
+\section{システム設計(\textcolor{orange}{61\%})}
   \label{sec:システム設計}
     \par
   
@@ -291,7 +291,40 @@
             \label{fig:サービス間とインターフェースの関連}
           \end{figure}
 
-      \subsubsection{セキュリティと認証の設計(0\%)}
+      \subsubsection{セキュリティと認証の設計(\textcolor{green}{100\%})}
         \label{sec:security_and_authentication_design}
-          \par $\Box$APIにおけるセキュリティ対策（例：HTTPS、APIキー、トークンベースの認証）を概説します。
-          \par $\Box$ユーザー認証・認可の方法（例：OAuth 2.0、JWT）の選定理由とその実装方針を述べます。
+          \par $\Box$ 認証シーケンス図作成したい
+          \par APIのセキュリティを考える上で認証及び認可の設計は，システムの信頼性とデータ保護を確保するために非常に重要であり，避けて通ることはできない．不適切なセキュリティ設計は，データの漏洩や不正アクセスなどの深刻な問題を引き起こす可能性がある．実際にAPI認証システムの脆弱性による被害が発生してる事例が存在する．例として，本研究と似通ったライドシェアサービスを展開しているUber社の事例を紹介する．2016年に，Uber社の開発者用APIキーがGitHubに公開されたことをきっかけに，Uber社が利用してる第三者機関のクラウドベースのサーバーにてユーザデータに不正なアクセスがあったことが発覚しした．APIキーを利用した攻撃により，日本でもおよそ10万人の乗客及びドライバに関する情報が漏洩したとされている\scalebox{0.7}{\cite{uber2016dataincident}}．そのため，本項では堅牢なシステム構築の重要な要素となるAPIにおける認証および認可を設計する．
+          \par 認証とはAPIを利用しようとしてるユーザやアプリケーションが「誰であるか」を確認するプロセスである．これは「本人確認」に相当し，ユーザがAPIにアクセスするために提供したAPIキーやトークンなどが正しいかを判定する．一方で，認可とは認証済みのユーザやアプリケーションが「何をすることを許可されているか」を制御するプロセスである．これは「権限管理」に相当し，認証後にそのユーザが特定のリソースや機能へのアクセスが許可されているかを判定する．
+          \par APIの認証で用いられる重要なプロトコルとしてはOAuth(Open Authrization)やOpenID Connect，JWT(Json Web Token)の3つが挙げられる．
+          \par OAuthは，OAuthプロバイダーを通して認証と認可を行う，アクセス委任の標準プロトコルである\scalebox{0.7}{\cite{oauth}}．一般に，アクセスはトークンの発行により許可され，そのトークンを用いることで外部サービスとの連携が容易である点が特徴である．
+          \par OpenID Connectは，OAuthプロトコルをベースとして構築された認証プロトコルであり，このプロトコルを用いることで，クライアントは認可サーバーの認証結果に基づいてエンドユーザを検証することができる．また，同時にエンドユーザに必要なプロフィール情報などもRESTfulな形式で取得することが可能となる\scalebox{0.7}{\cite{openidconnectjapan}}．
+          \par JWTは，認証や認可，セキュリティを容易に実装するために当事者間でデータを交換するための軽量な手段となるJSONドキュメントを表すトークンである\scalebox{0.7}{\cite{mahindraka2020insights}}．JWTはプライベートシークレットもしくは暗号鍵を用いて署名され，そのドキュメントにはトークンの発行者やその対象，有効期限などの情報を含んでいる．これはOAuthにおいてもOpenID Connectにおいてもユーザのアクセスの検証として用いられている．
+          \par 本研究で構築するAPIの認証及び認可においては，マイクロサービスアーキテクチャを採用しており，サービス間での認証と認可に適している点と，簡易的な認証基盤を設計し構築に要する時間的コストを削減する点を鑑みてこれらの認証プロトコルを用いて構築する．
+          \par そこで，JWTのペイロードのクレームに含まれているそれぞれの項目の設定値を定義する．JWTの発行者をしきべつするためのiss(issuer)にはBikeying APIのドメイン及びそのURLを定義する．サーバーにリクエストを送信するユーザを識別するためのsub(subject)には適当なuuidを定義する．JWTが意図する受信者を識別するためのaud(audience)にはローカルホスト環境で立ち上げるURLを定義する．JWTが発行された日時のタイムスタンプであるiat(issued at time)には現在時刻を定義する．JWTの有効期限を指定するexp(expiration time)には現在時刻から24時間後の時刻を定義し，このトークンの有効期限は24時間とする．認証プロトコルにはOpenID Connectを用いるため，scope(scope value)にその旨を定義する．実際に定義したpayloadはListing \ref{list:JWTペイロード}の通りである．
+          \par APIサーバーに認可を追加するため，生成したJWTを利用してAuthミドルウェアを構築する．悪意のあるユーザに情報を与えないためにも，認証及び認可に失敗した場合は403レスポンスではなく404レスポンスを返すこととする．ただし，Swagger UIで構築しているAPI仕様書やOpenAPIのJSONエンドポイントに対して認可を設定すると全てのAPIのエンドユーザが利用できなくなる場合も想定されるため，この2点については認証及び認可の処理を通らないよう考慮する．
+          \par さらにセキュリティの観点において，CORS(Cross-Origin Resource Sharing)ミドルウェアも追加する．CORSとは異なるドメインやプロトコル，ポートからリソースにアクセスすることを許可するメカニズムである．通常は異なるオリジンからのアクセスは制限されるが，指定されたHTTPヘッダーを使用することで制限を緩和し，異なるオリジンを跨いだリソースの共有を可能とする\scalebox{0.7}{\cite{dresen2020corsica}}．
+
+\lstset{
+  identifierstyle={\small},
+  commentstyle={\smallitshape},
+  keywordstyle={\small\bfseries},
+  ndkeywordstyle={\small},
+  stringstyle={\small\ttfamily},
+  frame={tb},
+  breaklines=true,
+  columns=[l]{fullflexible},
+  numberstyle={\scriptsize},
+  stepnumber=1,
+  lineskip=-0.5ex
+}
+\begin{lstlisting}[caption={JWTペイロード}, label={list:JWTペイロード}, basicstyle=\ttfamily\footnotesize]
+payload = {
+  "iss": "https://auth.bikeying.com",
+  "sub": "12e49b07-5ff3-4e2d-bfdf-6ac315ce5f33",
+  "aud": "http://127.0.0.1:8000/bikes",
+  "iat": now.timestamp(),
+  "exp": (now + timedelta(hours=24)).timestamp(),
+  "scope": "openid",
+}
+\end{lstlisting}
