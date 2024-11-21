@@ -44,6 +44,34 @@ James Lewis and Martin Fowler.
 \newblock Microservices, 2024.
 \newblock \url{https://martinfowler.com/articles/microservices.html}.
 
+\bibitem{uber2016dataincident}
+Uber.
+\newblock 2016 data incident.
+\newblock \url{https://www.uber.com/ja-JP/blog/2016-data-incident/}, December 2017.
+\newblock Accessed: 2024-11-18.
+
+\bibitem{oauth}
+OAuth Community.
+\newblock Oauth community site.
+\newblock \url{https://oauth.net/}, 2024.
+\newblock Accessed: 2024-11-18.
+
+\bibitem{openidconnectjapan}
+OpenID~Foundation Japan.
+\newblock Final: Openid connect core 1.0 incorporating errata set 1.
+\newblock \url{https://openid-foundation-japan.github.io/openid-connect-core-1_0.ja.html}, 2014.
+\newblock Accessed: 2024-11-18.
+
+\bibitem{mahindraka2020insights}
+P~Mahindraka.
+\newblock Insights of json web token.
+\newblock {\em International International Journal of Recent Technology and Engineering (IJRTE) ISSN}, pp. 2277--3878, 2020.
+
+\bibitem{dresen2020corsica}
+Christian Dresen, Fabian Ising, Damian Poddebniak, Tobias Kappert, Thorsten Holz, and Sebastian Schinzel.
+\newblock Corsica: Cross-origin web service identification.
+\newblock In {\em Proceedings of the 15th ACM Asia Conference on Computer and Communications Security}, pp. 409--419, 2020.
+
 \bibitem{OR-Tools}
 Google.
 \newblock About or-tools | google for developers, 2024.
