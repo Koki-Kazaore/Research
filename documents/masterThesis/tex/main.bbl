@@ -122,4 +122,34 @@ Preferred Networks.
 \newblock Cupy: Numpy \& scipy for gpu, 2024.
 \newblock \url{https://cupy.dev}.
 
+\bibitem{pipenv}
+Python~Packaging Authority.
+\newblock Github - pypa/pipenv: Python development workflow for humans.
+\newblock \url{https://github.com/pypa/pipenv}, 2024.
+\newblock Accessed: 2024-11-26.
+
+\bibitem{uvicorn}
+Encode.
+\newblock Github - encode/uvicorn: An asgi web server, for python.
+\newblock \url{https://github.com/encode/uvicorn}, 2024.
+\newblock Accessed: 2024-11-26.
+
+\bibitem{sqlite}
+The SQLite~Development Team.
+\newblock Github - sqlite/sqlite: Official git mirror of the sqlite source tree.
+\newblock \url{https://github.com/sqlite/sqlite}, 2024.
+\newblock Accessed: 2024-11-26.
+
+\bibitem{sqlalchemy}
+SQLAlchemy.
+\newblock Github - sqlalchemy/sqlalchemy: The database toolkit for python.
+\newblock \url{https://github.com/sqlalchemy/sqlalchemy}, 2024.
+\newblock Accessed: 2024-11-26.
+
+\bibitem{alembic}
+SQLAlchemy.
+\newblock Github - sqlalchemy/alembic: A database migrations tool for sqlalchemy.
+\newblock \url{https://github.com/sqlalchemy/alembic}, 2024.
+\newblock Accessed: 2024-11-26.
+
 \end{thebibliography}
