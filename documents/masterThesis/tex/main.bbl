@@ -152,4 +152,16 @@ SQLAlchemy.
 \newblock \url{https://github.com/sqlalchemy/alembic}, 2024.
 \newblock Accessed: 2024-11-26.
 
+\bibitem{swagger-ui}
+Swagger.
+\newblock swagger-api/swagger-ui: Swagger ui is a collection of html, javascript, and css assets that dynamically generate beautiful documentation from a swagger-compliant api.
+\newblock \url{https://github.com/swagger-api/swagger-ui}, 2024.
+\newblock Accessed: 2024-12-1.
+
+\bibitem{schemathesis}
+Schemathesis.io.
+\newblock schemathesis/schemathesis: Supercharge your api testing, catch bugs, and ensure compliance.
+\newblock \url{https://github.com/schemathesis/schemathesis}, 2024.
+\newblock Accessed: 2024-12-1.
+
 \end{thebibliography}
