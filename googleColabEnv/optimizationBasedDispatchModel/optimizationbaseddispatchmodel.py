@@ -92,6 +92,10 @@ df_requests = df_requests.sort_values(by='tpep_pickup_datetime')
 # インデックスをリセット
 df_requests = df_requests.reset_index(drop=True)
 
+# 不正なロケーションIDを持つ行を削除する(264以上は不正)
+df_requests = df_requests[df_requests['PULocationID'] < 264]
+df_requests = df_requests[df_requests['DOLocationID'] < 264]
+
 # フィルタリングされたデータの先頭を表示
 print(df_requests.head())
 
@@ -202,10 +206,10 @@ class optimizationBasedDispatchModel():
       bike_assignment,
       df_requests
   ):
-      for b, j in bike_assignment:
+      for b, request_id in bike_assignment:
           # jのtpep_dropoff_datetimeを取得するし自転車ステータス更新する
           # df_requestsのインデックスjに対応する行を取得
-          request_row = df_requests.iloc[j]
+          request_row = df_requests.loc[request_id]
           self.df_bikes.at[b, 'DODatetime'] = request_row['tpep_dropoff_datetime']
           # jのDOLocationIDを取得して自転車のCurrent Locationを更新する
           self.df_bikes.at[b, 'Current Location'] = self._get_coordinates_by_location_id(request_row['DOLocationID'])
@@ -294,8 +298,9 @@ class optimizationBasedDispatchModel():
         for b in range(self.df_bikes.shape[0]):
             for j in range(df_requests.shape[0]):
                 if x[b][j].solution_value() == 1:
-                    bike_assignment.append((b, j))
-                    # print(f"利用者 {j}: 自転車 {b}")
+                    request_id = df_requests.iloc[j].name
+                    bike_assignment.append((b, request_id))
+                    print(f"利用者 {j}: 自転車 {b}")
         self._update_bike_status(bike_assignment, df_requests)
         # _print_results()に結果を渡して出力する
         result_dict = {
@@ -329,6 +334,40 @@ def calculate_total_distance(df):
         total_distance += distance
     return total_distance
 
+def collect_training_data(df_requests, df_bikes, bike_assignment):
+    training_data = []
+    for request_index, request_row in df_requests.iterrows():
+        for bike_index, bike_row in df_bikes.iterrows():
+            # ユーザーの位置情報を取得
+            # print(optimizationBasedDispatchModel._get_coordinates_by_location_id(request_row['PULocationID']))
+            user_current_lon, user_current_lat = optimizationBasedDispatchModel._get_coordinates_by_location_id(request_row['PULocationID'])
+            user_dest_lon, user_dest_lat = optimizationBasedDispatchModel._get_coordinates_by_location_id(request_row['DOLocationID'])
+
+            # 自転車の位置情報を取得
+            bike_current_lon, bike_current_lat = bike_row['Current Location']
+            owner_lon, owner_lat = bike_row['Home Position']
+
+            # ユーザーと自転車の距離を計算
+            distance_user_bike = geodesic((user_current_lat, user_current_lon), (bike_current_lat, bike_current_lon)).m
+
+            # 割り当てられたかどうかを判定
+            assigned = 1 if (bike_index, request_index) in bike_assignment else 0
+            # print(bike_index, request_index, assigned)
+
+            # データをリストに追加
+            training_data.append([
+                request_index,
+                user_current_lon, user_current_lat,
+                user_dest_lon, user_dest_lat,
+                bike_index,
+                bike_current_lon, bike_current_lat,
+                owner_lon, owner_lat,
+                distance_user_bike,
+                request_row['tpep_pickup_datetime'],
+                assigned
+            ])
+    return training_data
+
 # モデリングするためにユーザーリクエストデータを整形する
 
 # tpep_pickup_datetimeをdatetime型に変換
@@ -344,6 +383,9 @@ print(f"リバランスコスト初期値：{calculate_total_distance(B)}")
 
 # マッチングプロセスのログデータ収集用時系列データ
 time_series_log_data = []
+
+# 訓練データとして蓄積するリスト
+all_training_data = []
 
 # データを1分ごとに処理
 current_time = start_time
@@ -377,6 +419,11 @@ while current_time < end_time:
         # テスト用
         # print(f"Time: {current_time}")
         # optimizationBasedDispatchModel.solve(J)
+
+        # 訓練データ収集
+        # bike_assignmentをインデックスからIDに変換
+
+        all_training_data.extend(collect_training_data(J, B, bike_assignment))
 
         # マッチング成功率を計算する
         matching_success_rate = len(bike_assignment) / len(J)
@@ -505,3 +552,16 @@ from google.colab import files
 filename =  "result_by_optimizationBasedDispatchModel.csv"
 df_time_series.to_csv(filename, encoding = 'utf-8-sig')
 files.download(filename)
+
+# 訓練データをデータフレームに変換
+df_training_data = pd.DataFrame(all_training_data, columns=[
+    'request_id', 'user_current_lon', 'user_current_lat', 'user_dest_lon', 'user_dest_lat',
+    'bike_id', 'bike_current_lon', 'bike_current_lat', 'owner_lon', 'owner_lat',
+    'distance_user_bike', 'timestamp', 'assigned'
+])
+
+df_training_data
+
+# CSVファイルとしてダウンロード
+df_training_data.to_csv('training_data.csv', index=False)
+files.download('training_data.csv')
