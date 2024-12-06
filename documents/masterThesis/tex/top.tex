@@ -11,6 +11,7 @@
 % 1inch = 72pt = 25.2mm
 % 1pt = 0.35mm
 \usepackage{geometry}
+\usepackage{graphicx} % rotateboxを使用するために必要
 \geometry{
     top=0mm,  % 上部の余白領域
     bottom=0mm,  % 下部の余白領域
@@ -32,24 +33,35 @@
         \begin{picture}(209, 296)  % (x, y) = (横方向の大きさ, 縦方向の大きさ)
             \put(30, 240){\makebox(150, 15)[b]{令和6年度卒業論文}}
             \put(30, 236){\line(1, 0){150}}
-            \put(30, 220){\makebox(150, 15)[b]{Japanese Title}}
-            \put(30, 210){\makebox(150, 15)[b]{English Title}}
+            % 日本語タイトル
+            \put(30, 220){\makebox(150, 15)[b]{%
+                \shortstack[l]{CtoCシェアサイクルサービスにおける\\新しいマッチングモデルの提案と実装}%
+            }}
+            % 英語タイトル (中央揃え)
+            \put(30, 200){\makebox(150, 15)[c]{%
+                \shortstack[c]{Proposal and Implementation of a New Matching Model \\for CtoC Bike Share Service}%
+            }}
             \put(30, 201){\line(1,0){150}}
-            \put(27, 87){\makebox(150, 15)[b]{福井大学\ \ 工学部}}
-            \put(30, 78){\makebox(150, 15)[b]{機械・システム工学科\ \ 知能モデリング研究室}}
+            \put(27, 87){\makebox(150, 15)[b]{福井大学大学院\ \ 工学研究科}}
+            \put(30, 78){\makebox(150, 15)[b]{知識社会基礎工学専攻\ \ 知能モデリング研究室}}
             \put(30, 69){\makebox(150, 15)[b]{風~折\ \ 晃~輝}}
             \put(30, 65){\line(1,0){150}}
             \put(27, 50){\makebox(150, 15){主指導教員\ \ 小~髙\ 知~宏}}
-            \put(27, 42){\makebox(150, 15){副指導教員\ \ 黒~岩\ 丈~介}}
-            \put(34, 34){\makebox(150, 15){協力職員\ \ 諏~訪\ い~ず~み}}
+            \put(27, 42){\makebox(150, 15){副指導教員\ \ 松~田\ 優~也}}
+            \put(27, 34){\makebox(150, 15){副指導教員\ \ 黒~岩\ 丈~介}}
+            \put(34, 26){\makebox(150, 15){協力職員\ \ 諏~訪\ い~ず~み}}
         \end{picture}
         % 背表紙
         \begin{picture}(209, 296)
             \put(10, 268){\pbox<t>{令和}}
-            \put(11.5, 260){4}
+            \put(11.5, 260){6}
             \put(10, 245){\pbox<t>{年度}}
             \put(0, 238){\line(1, 0){30}}
-            \put(10, 84){\pbox<t>{Japanese Title}}
+            \put(10, 84){%
+                \rotatebox{90}{%
+                    \shortstack[c]{CtoCシェアサイクルサービスにおける\\新しいマッチングモデルの提案と実装}%
+                }%
+            }
             \put(0, 70){\line(1, 0){30}}
             \put(10, 35){\pbox<t>{風折 晃輝}}
         \end{picture}
