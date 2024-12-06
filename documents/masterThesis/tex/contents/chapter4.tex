@@ -1,5 +1,5 @@
 % 第4章
-\section{システム設計(\textcolor{orange}{66\%})}
+\section{システム設計(\textcolor{orange}{72\%})}
   \label{sec:システム設計}
     \par
   
@@ -75,7 +75,7 @@
           
           \begin{figure}[htbp]
             \centering
-            \includegraphics[scale=0.35]
+            \includegraphics[scale=0.34]
             {figures/OverallImageOfSystemConfiguration.png}
             \caption{本研究において構築するシステム構成の全体像}
             \label{fig:本研究において構築するシステム構成の全体像}
@@ -83,7 +83,7 @@
           
           \begin{figure}[htbp]
             \centering
-            \includegraphics[scale=0.17]
+            \includegraphics[scale=0.15]
             {figures/howToUse.png}
             \caption{想定するシステム利用手順概要図}
             \label{fig:想定するシステム利用手順概要図}
@@ -118,9 +118,31 @@
     \label{sec:スマートロックの構築}
       \par 
       
-      \subsubsection{ハードウェア設計(0\%)}
+      \subsubsection{ハードウェア設計(\textcolor{green}{100\%})}
         \label{sec:ハードウェア設計}
-          \par ここでハードウェアについての要件定義(保守要件とか)を書く？
+          \par CtoCのシェアサイクルサービスにおいて，自転車に取り付けるスマートロックがここで指しているハードウェアである．ハードウェアは自転車の物理的な管理や盗難などのセキュリティ対策として非常に重要な役割を担っている．しかし，本研究ではハードウェアに関しては深入りせず，最終的な動作の確認のためのプロトタイプとして位置付ける．
+          \par 最もハードウェアのコアとなるユーザの認証方法についてはNFC(Near Field Communication)による認証と指紋による認証の2つのアプローチを設計する．
+          \par NFCによる認証をベースとした自転車のスマートロックシステムの概要を図\ref{fig:NFC認証をベースとしたスマートロックの概要図}に示す．NFCとは近距離無線通信を意味し，電子機器間の数センチメートル範囲内で発生する電磁誘導に起因してそれらの機器間の通信を可能とする\scalebox{0.7}{\cite{al2012near}}．そのNFC技術が用いられているNFCタグをスマートロックと連携することによって自転車の鍵を解錠する仕組みを構築する．想定する具体的な認証手順としては，まず，NFCを用いた自転車の鍵を自転車のオーナが自身の自転車に取り付け，別途用意するアプリケーション上でユーザが利用可能な時間を予め設定しておく．次に，ユーザは，利用したいタイミングでそのアプリケーションから利用したい希望の時間帯とマッチする自転車を探し出し，利用申請する．自転車の鍵にはNFCの他，マイコンやサーボモータを組み込み，スマートフォンがNFCにかざされ，認証されるとサーボモータが回転し，解錠する．
+          \par 解錠する際のデータフローとしては，主にBlynkとIFTTTと呼ばれる2つの外部アプリケーションと連携して自転車の鍵に組み込まれているESP32マイコンと通信する．解錠する場合と施錠する場合で呼び出すIFTTT APIが異なるため，それぞれの処理を実施するためのNFCタグを別で2枚準備する．それぞれのアプリケーションの詳細や実装については\ref{sec:組み込みソフトウェアの開発}及び\ref{sec:スマートロックの構築}にて後述する．
+          \par 指紋による認証をベースとした自転車のスマートロックシステムの概要を図\ref{fig:指紋認証をベースとしたスマートロックの概要図}に示す．多くの指紋認証センサにおけるセンサモジュール内部は図\ref{fig:指紋認証をベースとしたスマートロックの概要図}に示すようにセキュアに指紋情報を管理するため，その指紋認証センサを1つのモジュールとして指紋の登録や保存，認証といった一連の動作が指紋認証センサ内で完結するように組み込まれている．つまり，指紋認証センサにかざした指の指紋が，既に登録されている指紋かどうかを判定し，その結果のみが戻り値として通信される．そのため，認証結果としてマイコンが指紋認証センサから受け取る値は真偽値のみであるため，生体認証情報の漏洩リスクに関してはある程度担保されている．
+          \par ESP32マイコンによる解錠処理では，指紋認証センサから取得した真偽値を元に自転車の鍵に組み込まれたサーボモータを回転させて解錠するか否かを処理する．前述した通り，NFCによる認証を行う場合は解錠する場合と施錠する場合でそれぞれのNFCタグを用意し，処理を分けることができていたが，指紋による認証の場合，1つの指紋認証センサで解錠処理と施錠処理を分けることができず，また，それぞれの処理のために2つの指紋認証センサを準備することも現実的ではないため，時間差でサーボモータが元の位置に戻り，いつでも施錠することができる状態となるようにする．
+
+          \begin{figure}[htbp]
+            \centering
+            \includegraphics[scale=0.36]
+            {figures/overallImageOfNfcUnlock.png}
+            \caption{NFC認証をベースとしたスマートロックの概要図}
+            \label{fig:NFC認証をベースとしたスマートロックの概要図}
+          \end{figure}
+          
+          \begin{figure}[htbp]
+            \centering
+            \includegraphics[scale=0.46]
+            {figures/overallImageOfFingerprintUnlock.png}
+            \caption{指紋認証をベースとしたスマートロックの概要図}
+            \label{fig:指紋認証をベースとしたスマートロックの概要図}
+          \end{figure}
+          
           
       \subsubsection{組み込みソフトウェアの開発(0\%)}
         \label{sec:組み込みソフトウェアの開発}
@@ -229,7 +251,7 @@
           
           \begin{figure}[htbp]
             \centering
-            \includegraphics[scale=1.2]
+            \includegraphics[scale=1.18]
             {figures/objectFunction2.png}
             \caption{自転車に割り当てられるユーザは1人以下}
             \label{fig:自転車に割り当てられるユーザは1人以下}
@@ -285,7 +307,7 @@
 
           \begin{figure}[htbp]
             \centering
-            \includegraphics[scale=0.5]
+            \includegraphics[scale=0.49]
             {figures/microservice-architecture.png}
             \caption{サービス間とインターフェースの関連}
             \label{fig:サービス間とインターフェースの関連}
