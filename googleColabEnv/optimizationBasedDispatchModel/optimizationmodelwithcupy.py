@@ -16,6 +16,8 @@ Original file is located at
 - @return `results` : 自転車IDと割り当てられたユーザーのキューインデックスのタプル型の集合をlist型として結果を出力
 """
 
+!pip list
+
 # ライブラリのインストール
 !pip install ortools
 
@@ -440,6 +442,8 @@ B
 
 # 自転車の割り当て成功率と占有率とリバランスコストの関係をグラフ化する
 
+from scipy.signal import savgol_filter
+
 # ログデータをデータフレームにコンバートする
 df_time_series = pd.DataFrame(time_series_log_data)
 
@@ -452,6 +456,8 @@ time_new = np.linspace(time.min(), time.max(), 300)
 # PCHIP補間
 pchip_matching_success_rate = PchipInterpolator(time, df_time_series['matching_success_rate'])
 matching_success_rate_smooth = pchip_matching_success_rate(time_new)
+# 分かりにくいため、ローパスフィルタを使用して滑らかにする
+matching_success_rate_smooth = savgol_filter(matching_success_rate_smooth, window_length=51, polyorder=3)
 
 pchip_bikes_occupied_rate = PchipInterpolator(time, df_time_series['bikes_occupied_rate'])
 bikes_occupied_rate_smooth = pchip_bikes_occupied_rate(time_new)
@@ -536,3 +542,9 @@ print(type(current_locations))
 print(current_locations)
 
 plot_users_and_bikes([], current_locations, latitude_range, longitude_range)
+
+# ログのCSV出力
+from google.colab import files
+filename =  "result_by_optimizationModelWithCupy.csv"
+df_time_series.to_csv(filename, encoding = 'utf-8-sig')
+files.download(filename)
