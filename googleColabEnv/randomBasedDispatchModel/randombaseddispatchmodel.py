@@ -39,10 +39,10 @@ print(df_locations.head())
 '''自転車の集合'''
 # ランダムシードを設定して、ランダムに10個選択
 np.random.seed(42)
-random_sample = df_locations.sample(n=10)
+random_sample = df_locations.sample(n=650, replace=True)
 
 # Bike IDを設定
-random_sample['Bike ID'] = range(10)
+random_sample['Bike ID'] = range(650)
 
 # 緯度と経度をホームポジションとカレントポジションに設定
 random_sample['Home Position'] = list(zip(random_sample['Latitude'], random_sample['Longitude']))
@@ -390,6 +390,6 @@ plot_users_and_bikes([], current_locations, latitude_range, longitude_range)
 
 # ログのCSV出力
 from google.colab import files
-filename =  "result_by_randomBasedDispatchModel.csv"
+filename =  "result_by_randomBasedDispatchModel_650.csv"
 df_time_series.to_csv(filename, encoding = 'utf-8-sig')
 files.download(filename)
