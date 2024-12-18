@@ -10,6 +10,21 @@ Roy~Thomas Fielding.
 \newblock {\em Architectural styles and the design of network-based software architectures}.
 \newblock PhD thesis, University of California, Irvine, 2000.
 
+\bibitem{10431636}
+Matteo Golinelli, Elham Arshad, Dmytro Kashchuk, and Bruno Crispo.
+\newblock Mind the cors.
+\newblock In {\em 2023 5th IEEE International Conference on Trust, Privacy and Security in Intelligent Systems and Applications (TPS-ISA)}, pp. 213--221, 2023.
+
+\bibitem{muzumdar2024navigating}
+Prathamesh Muzumdar, Amol Bhosale, Ganga~Prasad Basyal, and George Kurian.
+\newblock Navigating the docker ecosystem: A comprehensive taxonomy and survey.
+\newblock {\em arXiv preprint arXiv:2403.17940}, 2024.
+
+\bibitem{armbrust2010view}
+Michael Armbrust, Armando Fox, Rean Griffith, Anthony~D Joseph, Randy Katz, Andy Konwinski, Gunho Lee, David Patterson, Ariel Rabkin, Ion Stoica, et~al.
+\newblock A view of cloud computing.
+\newblock {\em Communications of the ACM}, Vol.~53, No.~4, pp. 50--58, 2010.
+
 \bibitem{392555}
 Ieee recommended practice for software requirements specifications.
 \newblock {\em IEEE Std 830-1993}, pp. 1--32, 1994.
