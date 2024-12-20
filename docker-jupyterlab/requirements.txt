@@ -1,6 +1,13 @@
-jupyterlab
-pandas
-pulp
-matplotlib
+branca
+fastparquet
+folium
+geopy
 joblib
+jupyterlab
+matplotlib
 numpy
+ortools
+pandas
+pyarrow
+pulp
+scipy

@@ -1,8 +1,10 @@
-FROM python:3
+FROM python:3.10
 
 # Update package list and install dependent system libraries
 RUN apt-get update && apt-get install -y \
-    libgl1-mesa-glx
+    libgl1-mesa-glx \
+    g++ \
+    make
 
 # Copy requirements.txt into container
 COPY requirements.txt /tmp/requirements.txt
