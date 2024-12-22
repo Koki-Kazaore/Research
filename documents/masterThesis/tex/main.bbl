@@ -30,6 +30,21 @@ Arun Sundararajan.
 \newblock {\em The sharing economy: The end of employment and the rise of crowd-based capitalism}.
 \newblock MIT press, 2017.
 
+\bibitem{zaidi2022unlocking}
+Syed Ali~Raza Zaidi, Ali~M Hayajneh, Maryam Hafeez, and Qasim~Zeeshan Ahmed.
+\newblock Unlocking edge intelligence through tiny machine learning (tinyml).
+\newblock {\em IEEE Access}, Vol.~10, pp. 100867--100877, 2022.
+
+\bibitem{milarokostas2022comprehensive}
+Christos Milarokostas, Dimitris Tsolkas, Nikos Passas, and Lazaros Merakos.
+\newblock A comprehensive study on lpwans with a focus on the potential of lora/lorawan systems.
+\newblock {\em IEEE Communications Surveys \& Tutorials}, Vol.~25, No.~1, pp. 825--867, 2022.
+
+\bibitem{Gavras_Kostakis_2021}
+Kosmas Gavras and Vasilis Kostakis.
+\newblock Mapping the types of modularity in open-source hardware.
+\newblock {\em Design Science}, Vol.~7, p. e13, 2021.
+
 \bibitem{WhatIsAnAPI}
 AWS.
 \newblock What is an api? - application programming interface explained - aws, 2024.
