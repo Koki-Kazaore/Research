@@ -80,6 +80,21 @@ Dobrik Georgiev, Danilo Numeroso, Davide Bacciu, and Pietro Lio.
 \newblock Neural algorithmic reasoning for combinatorial optimisation.
 \newblock 05 2023.
 
+\bibitem{8903465}
+Shiliang Sun, Zehui Cao, Han Zhu, and Jing Zhao.
+\newblock A survey of optimization methods from a machine learning perspective.
+\newblock {\em IEEE Transactions on Cybernetics}, Vol.~50, No.~8, pp. 3668--3681, 2020.
+
+\bibitem{business-intelligence}
+Veselina Naneva and Kremena Stefanova.
+\newblock The application of machine learning in business intelligence.
+\newblock 10 2020.
+
+\bibitem{PredictionofBikeShareDemandbyMachineLearning}
+Tae Kim, Min~Jae Park, Jiho Shin, and Sungwon Oh.
+\newblock Prediction of bike share demand by machine learning: Role of vehicle accident as the new feature.
+\newblock {\em International Journal of Business Analytics}, Vol.~9, pp. 1--16, 01 2022.
+
 \bibitem{WhatIsAnAPI}
 AWS.
 \newblock What is an api? - application programming interface explained - aws, 2024.
