@@ -60,6 +60,26 @@ Kuan Zhang, Jianbing Ni, Kan Yang, Xiaohui Liang, Ju~Ren, and Xuemin~Sherman She
 \newblock Security and privacy in smart city applications: Challenges and solutions.
 \newblock {\em IEEE communications magazine}, Vol.~55, No.~1, pp. 122--129, 2017.
 
+\bibitem{wolsey2020integer}
+Laurence~A Wolsey.
+\newblock {\em Integer programming}.
+\newblock John Wiley \& Sons, 2020.
+
+\bibitem{hooker2024integer}
+John~N Hooker.
+\newblock Integer programming duality.
+\newblock In {\em Encyclopedia of Optimization}, pp. 1--13. Springer, 2024.
+
+\bibitem{9416305}
+Jing Ren, Feng Xia, Xiangtai Chen, Jiaying Liu, Mingliang Hou, Ahsan Shehzad, Nargiz Sultanova, and Xiangjie Kong.
+\newblock Matching algorithms: Fundamentals, applications and challenges.
+\newblock {\em IEEE Transactions on Emerging Topics in Computational Intelligence}, Vol.~5, No.~3, pp. 332--350, 2021.
+
+\bibitem{np-hard}
+Dobrik Georgiev, Danilo Numeroso, Davide Bacciu, and Pietro Lio.
+\newblock Neural algorithmic reasoning for combinatorial optimisation.
+\newblock 05 2023.
+
 \bibitem{WhatIsAnAPI}
 AWS.
 \newblock What is an api? - application programming interface explained - aws, 2024.
@@ -98,16 +118,6 @@ Martin Glinz.
 Hussein~Ahmad Al-Ofeishat and Mohammad~AA Al~Rababah.
 \newblock Near field communication (nfc).
 \newblock {\em International Journal of Computer Science and Network Security (IJCSNS)}, Vol.~12, No.~2, p.~93, 2012.
-
-\bibitem{wolsey2020integer}
-Laurence~A Wolsey.
-\newblock {\em Integer programming}.
-\newblock John Wiley \& Sons, 2020.
-
-\bibitem{hooker2024integer}
-John~N Hooker.
-\newblock Integer programming duality.
-\newblock In {\em Encyclopedia of Optimization}, pp. 1--13. Springer, 2024.
 
 \bibitem{gomory1960integer}
 Ralph~E Gomory and William~J Baumol.
