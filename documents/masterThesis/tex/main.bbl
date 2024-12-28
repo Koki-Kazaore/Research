@@ -95,6 +95,16 @@ Tae Kim, Min~Jae Park, Jiho Shin, and Sungwon Oh.
 \newblock Prediction of bike share demand by machine learning: Role of vehicle accident as the new feature.
 \newblock {\em International Journal of Business Analytics}, Vol.~9, pp. 1--16, 01 2022.
 
+\bibitem{ConceptualizingCityAPIsaselementsofinfrastructures}
+Christoph Raetzsch, Gabriel Pereira, Lasse Vestergaard, and Martin Brynskov.
+\newblock Weaving seams with data: Conceptualizing city apis as elements of infrastructures.
+\newblock {\em Big Data \& Society}, Vol.~6, p. 205395171982761, 02 2019.
+
+\bibitem{PerformanceEvaluationofRESTandGraphQLAPIsSearchingNestedObjects}
+Marlon França and Eduardo da~Silva.
+\newblock Performance evaluation of rest and graphql apis searching nested objects.
+\newblock pp. 237--244, 09 2020.
+
 \bibitem{WhatIsAnAPI}
 AWS.
 \newblock What is an api? - application programming interface explained - aws, 2024.
