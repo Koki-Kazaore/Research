@@ -279,4 +279,10 @@ Schemathesis.io.
 \newblock \url{https://github.com/schemathesis/schemathesis}, 2024.
 \newblock Accessed: 2024-12-1.
 
+\bibitem{YellowTaxiTripRecords}
+City of~New~York.
+\newblock Yellow taxi trip records.
+\newblock \url{https://d37ci6vzurychx.cloudfront.net/trip-data/yellow_tripdata_2023-01.parquet}, 2023.
+\newblock \\Accessed: 2024-05-27.
+
 \end{thebibliography}
