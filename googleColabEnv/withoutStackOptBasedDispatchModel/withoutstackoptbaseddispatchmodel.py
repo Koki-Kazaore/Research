@@ -19,6 +19,10 @@ Original file is located at
 # ライブラリのインストール
 !pip install ortools
 
+# requirementx.txtを出力
+# !pip freeze > requirements.txt
+!python --version
+
 import branca.colormap as cm
 import folium
 import matplotlib.pyplot as plt
@@ -41,12 +45,12 @@ df_locations = df_locations.iloc[:-2]
 print(df_locations.head())
 
 '''自転車の集合'''
-# ランダムシードを設定して、ランダムに10個選択
+# ランダムシードを設定して、ランダムにn個選択
 np.random.seed(42)
-random_sample = df_locations.sample(n=10)
+random_sample = df_locations.sample(n=50, replace=True)
 
 # Bike IDを設定
-random_sample['Bike ID'] = range(10)
+random_sample['Bike ID'] = range(50)
 
 # 緯度と経度をホームポジションとカレントポジションに設定
 random_sample['Home Position'] = list(zip(random_sample['Latitude'], random_sample['Longitude']))
@@ -497,6 +501,6 @@ print(current_locations)
 plot_users_and_bikes([], current_locations, latitude_range, longitude_range)
 
 from google.colab import files
-filename =  "result_by_withoutStackOptBasedDispatchModel.csv"
+filename =  "result_by_withoutStackOptBasedDispatchModel_50.csv"
 df_time_series.to_csv(filename, encoding = 'utf-8-sig')
 files.download(filename)
