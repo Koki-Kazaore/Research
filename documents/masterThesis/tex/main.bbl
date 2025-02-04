@@ -285,4 +285,9 @@ City of~New~York.
 \newblock \url{https://d37ci6vzurychx.cloudfront.net/trip-data/yellow_tripdata_2023-01.parquet}, 2023.
 \newblock \\Accessed: 2024-05-27.
 
+\bibitem{esppingithub}
+{beNative/ESP32-GPIO-list: ESP32 pinouts}.
+\newblock \url{https://github.com/beNative/ESP32-GPIO-list}, 2025.
+\newblock \\Accessed: 2025-02-3.
+
 \end{thebibliography}
