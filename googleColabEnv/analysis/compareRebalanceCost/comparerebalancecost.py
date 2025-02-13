@@ -102,6 +102,12 @@ print(df_time_series_optimization.info())
 print(df_time_series_random.info())
 print(df_time_series_withoutStackOpt.info())
 
+# リバランスコストを1/5にする
+df_time_series_neighborhood['rebalance_cost'] = df_time_series_neighborhood['rebalance_cost'] / 5
+df_time_series_optimization['rebalance_cost'] = df_time_series_optimization['rebalance_cost'] / 5
+df_time_series_random['rebalance_cost'] = df_time_series_random['rebalance_cost'] / 5
+df_time_series_withoutStackOpt['rebalance_cost'] = df_time_series_withoutStackOpt['rebalance_cost'] / 5
+
 df_time_series = [
     df_time_series_random,
     df_time_series_neighborhood,
@@ -172,6 +178,12 @@ print(df_time_series_neighborhood.info())
 print(df_time_series_optimization.info())
 print(df_time_series_random.info())
 print(df_time_series_withoutStackOpt.info())
+
+# リバランスコストを1/10にする
+df_time_series_neighborhood['rebalance_cost'] = df_time_series_neighborhood['rebalance_cost'] / 10
+df_time_series_optimization['rebalance_cost'] = df_time_series_optimization['rebalance_cost'] / 10
+df_time_series_random['rebalance_cost'] = df_time_series_random['rebalance_cost'] / 10
+df_time_series_withoutStackOpt['rebalance_cost'] = df_time_series_withoutStackOpt['rebalance_cost'] / 10
 
 df_time_series = [
     df_time_series_random,
