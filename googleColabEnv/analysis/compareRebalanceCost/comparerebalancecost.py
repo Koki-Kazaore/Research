@@ -13,6 +13,7 @@ Original file is located at
 import branca.colormap as cm
 import folium
 import matplotlib.pyplot as plt
+import matplotlib.dates as mdates
 import numpy as np
 import pandas as pd
 from datetime import datetime
@@ -82,9 +83,14 @@ plt.plot(time_new_datetime, rebalance_cost_smooth_optimization, label='optimizat
 # 軸ラベル、凡例、タイトルを設定
 plt.xlabel('Time')
 plt.ylabel('Rebalance Cost')
+# plt.legend(fontsize=18)
 plt.legend()
 plt.grid(True)
-plt.title('Comparison of rebalancing costs by model over time')
+# plt.title('Comparison of rebalancing costs by model over time')
+# x 軸のフォーマットを「時:分:秒」のみに変更
+ax1.xaxis.set_major_formatter(mdates.DateFormatter('%H:%M:%S'))
+# y 軸の範囲を0から1.82に設定
+plt.ylim(0, 1.82)
 
 # グラフを表示
 plt.show()
@@ -162,6 +168,10 @@ plt.ylabel('Rebalance Cost')
 plt.legend()
 plt.grid(True)
 # plt.title('Comparison of rebalancing costs by model over time')
+# x 軸のフォーマットを「時:分:秒」のみに変更
+ax1.xaxis.set_major_formatter(mdates.DateFormatter('%H:%M:%S'))
+# y 軸の範囲を0から1.82に設定
+plt.ylim(0, 1.82)
 
 # グラフを表示
 plt.show()
@@ -239,6 +249,10 @@ plt.ylabel('Rebalance Cost')
 plt.legend()
 plt.grid(True)
 # plt.title('Comparison of rebalancing costs by model over time')
+# x 軸のフォーマットを「時:分:秒」のみに変更
+ax1.xaxis.set_major_formatter(mdates.DateFormatter('%H:%M:%S'))
+# y 軸の範囲を0から1.82に設定
+plt.ylim(0, 1.82)
 
 # グラフを表示
 plt.show()
