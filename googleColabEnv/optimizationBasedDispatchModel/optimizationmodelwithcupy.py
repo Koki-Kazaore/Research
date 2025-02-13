@@ -44,15 +44,16 @@ df_locations = pd.read_csv('/content/taxi_zone_lookup_with_coordinates.csv')
 df_locations = df_locations.iloc[:-2]
 
 print(df_locations.head())
+print(df_locations.tail())
 df_locations.info()
 
 '''自転車の集合'''
 # ランダムシードを設定して、ランダムに10個選択
 np.random.seed(42)
-random_sample = df_locations.sample(n=100, replace=True)
+random_sample = df_locations.sample(n=50, replace=True)
 
 # Bike IDを設定
-random_sample['Bike ID'] = range(100)
+random_sample['Bike ID'] = range(50)
 
 # 緯度と経度をホームポジションとカレントポジションに設定
 random_sample['Home Position'] = list(zip(random_sample['Latitude'], random_sample['Longitude']))
@@ -120,7 +121,7 @@ class optimizationBasedDispatchModel():
         else:
             return None
     else:
-        ipdb.set_trace()  # ブレークポイントを設定
+        # ipdb.set_trace()  # ブレークポイントを設定
         return None
 
 
@@ -158,7 +159,11 @@ class optimizationBasedDispatchModel():
       home_positions = cp.array(self.df_bikes['Home Position'].to_list())
 
       # リクエストの目的地を取得
+      # print(df_requests['DOLocationID'])
+      # print(self._get_coordinates_by_location_id)
       request_destinations = cp.array(df_requests['DOLocationID'].apply(self._get_coordinates_by_location_id).to_list())
+      # 変更箇所：リスト内包表記を使用して2D配列を作成
+      # request_destinations = cp.array([[coord[0], coord[1]] for coord in df_requests['DOLocationID'].apply(self._get_coordinates_by_location_id).to_list()])
 
       # 移動後の距離行列 d を作成 (d[b, j] が利用者 j が移動した後の自転車 b とその定位置までの距離)
       # 距離行列を初期化
@@ -386,7 +391,7 @@ time_series_log_data = []
 current_time = start_time
 while current_time < end_time:
     print(f"Time: {current_time}")
-    next_time = current_time + pd.Timedelta(minutes=1)
+    next_time = current_time + pd.Timedelta(minutes=5)
     # 現在の1分間のリクエストを抽出
     J = df_requests[(df_requests['tpep_pickup_datetime'] >= current_time) & (df_requests['tpep_pickup_datetime'] < next_time)]
     # print(J)
@@ -401,6 +406,14 @@ while current_time < end_time:
         available_bikes = optimizationBasedDispatchModel._get_available_bikes(current_time)
         bikes_occupied_rate = 1 - available_bikes.sum() / len(available_bikes)
         print(f"Bikes Occupied Rate: {bikes_occupied_rate}")
+
+        # PULocationIDまたはDOLocationIDが262より大きい場合は不正なリクエストとしてエラー文を出力して次の処理へスキップする
+        if J['PULocationID'].values[0] > 262 or J['DOLocationID'].values[0] > 262:
+            print("Invalid request. PULocationID or DOLocationID is greater than 262.")
+            print("-------------------------------------------------------")
+            # 次の1分へ移動
+            current_time = next_time
+            continue
 
         #本番用
         try:
@@ -543,6 +556,6 @@ plot_users_and_bikes([], current_locations, latitude_range, longitude_range)
 
 # ログのCSV出力
 from google.colab import files
-filename =  "result_by_optimizationModelWithCupy_100.csv"
+filename =  "result_by_optimizationModelWithCupy_50_5m.csv"
 df_time_series.to_csv(filename, encoding = 'utf-8-sig')
 files.download(filename)
