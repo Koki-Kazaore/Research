@@ -559,3 +559,52 @@ from google.colab import files
 filename =  "result_by_optimizationModelWithCupy_50_5m.csv"
 df_time_series.to_csv(filename, encoding = 'utf-8-sig')
 files.download(filename)
+
+"""# 再配置コストについての実態調査
+
+### 再配置コスト算出方法
+2点の座標を
+
+home_position = ($x_1$, $y_1$), current_location = ($x_2$, $y_2$)
+
+とする
+"""
+
+def calculate_actual_total_distance(df):
+    """
+    DataFrameの各行に対して、ホームポジションと現在位置（緯度・経度：度単位）の差分を
+    実際の距離（メートル）に変換し、その総和を計算する関数。
+
+    変換方法:
+    - 緯度方向: 1度 ≒ 111320 m
+    - 経度方向: 1度 ≒ 111320 * cos(平均緯度) m （平均緯度はラジアンに変換）
+
+    :param df: 'Home Position'と'Current Location'の列を持つDataFrame
+               各セルは (latitude, longitude) のタプル（度単位）
+    :return: 総距離（メートル単位）
+    """
+    total_distance = 0
+    for _, row in df.iterrows():
+        # 座標を取得（度単位）
+        home_lat, home_lon = row['Home Position']
+        current_lat, current_lon = row['Current Location']
+
+        # 座標の差（度単位）
+        delta_lat = home_lat - current_lat
+        delta_lon = home_lon - current_lon
+
+        # 緯度方向の距離変換（メートル）
+        lat_distance = delta_lat * 111320
+
+        # 経度方向は、平均緯度に依存するのでまず平均緯度を計算（度単位）
+        mean_lat = (home_lat + current_lat) / 2
+        # 平均緯度をラジアンに変換してから、経度方向の距離変換
+        lon_distance = delta_lon * 111320 * np.cos(np.deg2rad(mean_lat))
+
+        # ユークリッド距離（メートル単位）
+        distance = np.sqrt(lat_distance**2 + lon_distance**2)
+        total_distance += distance
+
+    return total_distance
+
+print("10台あたりの再配置移動に要する延べ距離：", calculate_actual_total_distance(B) / 5, "(m)")
